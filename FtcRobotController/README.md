@@ -1,0 +1,1 @@
+This folder contains the original FTC code, modify TeamCode folder if you want to add new sources.

@@ -1,0 +1,16 @@
+/**
+ * Top-level build file for the project.
+ */
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        /*
+        * Change this when a new version of Gradle build tools gets released.
+        * */
+        classpath 'com.android.tools.build:gradle:2.2.3'
+    }
+}
+
+
