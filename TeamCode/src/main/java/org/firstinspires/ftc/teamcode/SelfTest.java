@@ -10,35 +10,32 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  */
 @Autonomous(name="Self Test", group="Tests")
 // @Disabled
-public final class SelfTest extends LinearOpMode {
-
-    Hardware robot = new Hardware();
+public final class SelfTest extends RobotOpMode {
     private ElapsedTime timer = new ElapsedTime();
 
     @Override
-    public void runOpMode() {
-        robot.init(hardwareMap);
-
-        telemetry.addData("Status", "Robot is ready.");
-        telemetry.update();
-
-        waitForStart();
-
-        robot.leftMotor.setPower(0.1);
-        robot.rightMotor.setPower(0.1);
-
+    public void start()
+    {
         timer.reset();
+    }
 
-        while (opModeIsActive() && timer.seconds() < 0.5) {
-            telemetry.addData("Status", "Running...");
-            telemetry.addData("Power", "Power: ", robot.leftMotor.getPower());
+    @Override
+    public void loop() {
+        if (timer.seconds() < 1) {
+            robot.leftMotor.setPower(0.5);
+            robot.rightMotor.setPower(0.5);
+
+            telemetry.addData("Status:", "Running...");
+            telemetry.addData("Power: %f", robot.leftMotor.getPower());
             telemetry.update();
+        } else {
+            robot.leftMotor.setPower(0);
+            robot.rightMotor.setPower(0);
+
+            telemetry.addData("Status: ", "Self test passed.");
+            telemetry.update();
+
+            requestOpModeStop();
         }
-
-        robot.leftMotor.setPower(0);
-        robot.rightMotor.setPower(0);
-
-        telemetry.addData("Status", "Self test passed.");
-        telemetry.update();
     }
 }
