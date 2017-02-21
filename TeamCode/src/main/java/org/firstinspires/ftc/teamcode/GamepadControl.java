@@ -16,8 +16,7 @@ public class GamepadControl extends RobotOpMode
     boolean af1 = false, af2 = false;
 
     @Override
-    public void start()
-    {
+    public void start() {
         runtime.reset();
     }
 
