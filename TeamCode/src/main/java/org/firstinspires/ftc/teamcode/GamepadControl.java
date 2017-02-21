@@ -20,6 +20,7 @@ public class GamepadControl extends RobotOpMode
     {
         runtime.reset();
     }
+    
 
     @Override
     public void loop() {
