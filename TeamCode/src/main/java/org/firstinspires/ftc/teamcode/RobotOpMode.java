@@ -38,6 +38,9 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
    */
 
 public abstract class RobotOpMode extends OpMode {
+
+    public static final double MOTOR_LIMIT = 0.78;
+
     protected Hardware robot = new Hardware();
 
     protected void tractiuneRobot (double i, double j, char tr){
@@ -51,20 +54,20 @@ public abstract class RobotOpMode extends OpMode {
             j = - 1;
 
         if (tr == 'i'){
-            robot.leftFrontMotor.setPower(i * 39 / 50);
-            robot.rightFrontMotor.setPower(-j * 39 / 50);
-            robot.leftBackMotor.setPower(i * 39 / 50);
-            robot.rightBackMotor.setPower(-j * 39 / 50);
+            robot.leftFrontMotor.setPower(i * MOTOR_LIMIT);
+            robot.rightFrontMotor.setPower(-j * MOTOR_LIMIT);
+            robot.leftBackMotor.setPower(i * MOTOR_LIMIT);
+            robot.rightBackMotor.setPower(-j * MOTOR_LIMIT);
         }
         if (tr == 's'){
             robot.leftFrontMotor.setPower(0);
             robot.rightFrontMotor.setPower(0);
-            robot.leftBackMotor.setPower(i * 39 / 50);
-            robot.rightBackMotor.setPower(-j * 39 / 50);
+            robot.leftBackMotor.setPower(i * MOTOR_LIMIT);
+            robot.rightBackMotor.setPower(-j * MOTOR_LIMIT);
         }
         if (tr == 'f'){
-            robot.leftFrontMotor.setPower(i * 39 / 50);
-            robot.rightFrontMotor.setPower(-j * 39 / 50);
+            robot.leftFrontMotor.setPower(i * MOTOR_LIMIT);
+            robot.rightFrontMotor.setPower(-j * MOTOR_LIMIT);
             robot.leftBackMotor.setPower(0);
             robot.rightBackMotor.setPower(0);
         }
@@ -80,10 +83,10 @@ public abstract class RobotOpMode extends OpMode {
             j = 1;
         if (j < - 1)
             j = - 1;
-        robot.leftFrontMotor.setPower(i * 39 / 50);
-        robot.rightFrontMotor.setPower(-j * 39 / 50);
-        robot.leftBackMotor.setPower(i * 39 / 50);
-        robot.rightBackMotor.setPower(-j * 39 / 50);
+        robot.leftFrontMotor.setPower(i * MOTOR_LIMIT);
+        robot.rightFrontMotor.setPower(-j * MOTOR_LIMIT);
+        robot.leftBackMotor.setPower(i * MOTOR_LIMIT);
+        robot.rightBackMotor.setPower(-j * MOTOR_LIMIT);
     }
 
     protected void tractiuneSpate (double i, double j){
@@ -95,8 +98,8 @@ public abstract class RobotOpMode extends OpMode {
             j = 1;
         if (j < - 1)
             j = - 1;
-        robot.leftBackMotor.setPower(i * 39 / 50);
-        robot.rightBackMotor.setPower(-j * 39 / 50);
+        robot.leftBackMotor.setPower(i * MOTOR_LIMIT);
+        robot.rightBackMotor.setPower(-j * MOTOR_LIMIT);
     }
 
     protected void tractiuneFata (double i, double j){
@@ -108,8 +111,8 @@ public abstract class RobotOpMode extends OpMode {
             j = 1;
         if (j < - 1)
             j = - 1;
-        robot.leftFrontMotor.setPower(i * 39 / 50);
-        robot.rightFrontMotor.setPower(-j * 39 / 50);
+        robot.leftFrontMotor.setPower(i * MOTOR_LIMIT);
+        robot.rightFrontMotor.setPower(-j * MOTOR_LIMIT);
     }
 
 
@@ -118,7 +121,7 @@ public abstract class RobotOpMode extends OpMode {
 
     protected void grabBalls (boolean af){
         if (af == true){
-            robot.grabMotor.setPower(0.78);
+            robot.grabMotor.setPower(MOTOR_LIMIT);
         }
         else{
             robot.grabMotor.setPower(0);
@@ -127,8 +130,8 @@ public abstract class RobotOpMode extends OpMode {
 
     protected void fireBalls (boolean af){
         if (af == true){
-            robot.fireLeftMotor.setPower(0.78);
-            robot.fireRightMotor.setPower(-0.78);
+            robot.fireLeftMotor.setPower(MOTOR_LIMIT);
+            robot.fireRightMotor.setPower(-MOTOR_LIMIT);
         }
         else{
             robot.fireLeftMotor.setPower(0);

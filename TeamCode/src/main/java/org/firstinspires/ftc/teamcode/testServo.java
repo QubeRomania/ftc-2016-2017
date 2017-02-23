@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name="testServo", group="Iterative Opmode")
 //@Disabled
-public class testServo extends RobotOpMode
+public class TestServo extends RobotOpMode
 {
 
     @Override
