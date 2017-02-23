@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-@TeleOp(name="testServo", group="Iterative Opmode")
+@TeleOp(name="Test Servomotors", group="Tests")
 //@Disabled
 public class TestServo extends RobotOpMode
 {

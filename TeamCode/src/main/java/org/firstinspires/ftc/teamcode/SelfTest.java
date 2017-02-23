@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * This OpMode is meant to test the robot's autonomy.
  * It should test all the hardware to make sure it works.
  */
-@Autonomous(name="Self Test", group="Tests")
+@Autonomous(name="Robot Self Test", group="Tests")
 // @Disabled
 public final class SelfTest extends RobotOpMode {
     private ElapsedTime timer = new ElapsedTime();

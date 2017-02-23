@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-@TeleOp(name="GamepadControl", group="Iterative Opmode")
+@TeleOp(name="Control with Gamepad", group="Iterative Opmode")
 //@Disabled
 public class GamepadControl extends RobotOpMode
 {
