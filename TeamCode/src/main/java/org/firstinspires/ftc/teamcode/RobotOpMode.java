@@ -39,7 +39,9 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 public abstract class RobotOpMode extends OpMode {
 
+    //CONSTANTE
     public static final double MOTOR_LIMIT = 0.78;
+    public static final double TIME_AFTER_PRESS_BUTTON = 0.1;
 
     protected Hardware robot = new Hardware();
 
