@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-@TeleOp(name="GamepadControl", group="Iterative Opmode")
+@TeleOp(name="Control with Gamepad", group="Iterative Opmode")
 //@Disabled
 public class GamepadControl extends RobotOpMode
 {
@@ -50,17 +50,17 @@ public class GamepadControl extends RobotOpMode
 
 
         //schimb tractiune
-        if (gamepad1.dpad_up && runtime.time() - timeDpad >= 0.2) {
+        if (gamepad1.dpad_up && runtime.time() - timeDpad >= TIME_AFTER_PRESS_BUTTON) {
             tractiune = 'f';
             timeDpad = runtime.time();
         }
 
-        if (gamepad1.dpad_down && runtime.time() - timeDpad >= 0.2) {
+        if (gamepad1.dpad_down && runtime.time() - timeDpad >= TIME_AFTER_PRESS_BUTTON) {
             tractiune = 's';
             timeDpad = runtime.time();
         }
 
-        if (gamepad1.dpad_left && runtime.time() - timeDpad >= 0.2) {
+        if (gamepad1.dpad_left && runtime.time() - timeDpad >= TIME_AFTER_PRESS_BUTTON) {
             tractiune = 'i';
             timeDpad = runtime.time();
         }
@@ -74,7 +74,7 @@ public class GamepadControl extends RobotOpMode
         //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
         //Aspirat mingi
-        if(gamepad1.y && runtime.time() - timerGamepad1y >= 0.2){
+        if(gamepad1.y && runtime.time() - timerGamepad1y >= TIME_AFTER_PRESS_BUTTON){
             afGamepad1y = !afGamepad1y;
             grabBalls (afGamepad1y);
 
@@ -82,7 +82,7 @@ public class GamepadControl extends RobotOpMode
         }
 
         //Aruncare mingi
-        if(gamepad1.a && runtime.time() - timerGamepad1a >= 0.2){
+        if(gamepad1.a && runtime.time() - timerGamepad1a >= TIME_AFTER_PRESS_BUTTON){
             afGamepad1a = !afGamepad1a;
             fireBalls (afGamepad1a);
 

@@ -18,7 +18,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
         -Sistem aruncare mingi mici
             grabMotor
             fireLeftMotor
-            firRightMotor
+            fireRightMotor
 
     Servos
         -Test

@@ -5,9 +5,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-@TeleOp(name="testServo", group="Iterative Opmode")
+@TeleOp(name="Test Servomotors", group="Tests")
 //@Disabled
-public class testServo extends RobotOpMode
+public class TestServo extends RobotOpMode
 {
 
     @Override
@@ -19,6 +19,5 @@ public class testServo extends RobotOpMode
         robot.servo1.setPosition(gamepad2.right_trigger);
 
     }
-
 
 }
