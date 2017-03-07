@@ -16,8 +16,7 @@ public class TestServo extends RobotOpMode
 
     @Override
     public void loop() {
-        robot.servo1.setPosition(gamepad2.right_trigger);
-
+        //robot.servo1.setPosition(gamepad1.right_trigger);
     }
 
 }
