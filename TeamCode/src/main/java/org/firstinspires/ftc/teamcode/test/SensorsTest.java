@@ -1,29 +1,23 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.test;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.RobotOpMode;
+
 
 @Autonomous(name="Test Sensors", group="Tests")
-//@Disabled
 public class SensorsTest extends RobotOpMode
 {
-
-    protected Hardware robot = new Hardware();
-
-    private ElapsedTime runtime = new ElapsedTime();
-
     @Override
     public void start() {
-        runtime.reset();
+        robot.initSensors();
     }
 
     @Override
     public void loop() {
+        setStatus("Testing sensors.");
 
-        telemetry.addData("Status", "Running: " + runtime.toString());
-        telemetry.update();
+
     }
-
-
 }

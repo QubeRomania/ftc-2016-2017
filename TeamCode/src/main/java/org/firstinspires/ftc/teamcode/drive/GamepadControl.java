@@ -1,25 +1,22 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.drive;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.GamepadButton;
+import org.firstinspires.ftc.teamcode.RobotOpMode;
+import org.firstinspires.ftc.teamcode.Traction;
 
 @TeleOp(name="Control with Gamepad", group="Iterative Opmode")
-//@Disabled
 public class GamepadControl extends RobotOpMode
 {
-    private ElapsedTime runtime = new ElapsedTime();
-
     //VARIABILE
     //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     //variabele control miscare robot
-    double power = 0, lastpower = 0;
+    double power = 0;
     double directie;
-    char tractiune = 'i';
-
-    //variabele care tin minte timpul la care a fost apasat un buton pentru ca sa nu ia in calcul ourmatoarea apasare decat dupa 3 zecimi de secunda
-    double timerGamepad1Dpad = 0, timerGamepad1a = 0, timerGamepad1b = 0, timerGamepad1y = 0, timerGamepad1x = 0, timerGamepad2Dpad = 0, timerGamepad2a = 0, timerGamepad2b = 0, timerGamepad2y = 0, timerGamepad2x = 0;
+    Traction tractiune = Traction.Both;
 
     //variabelele care tin minte stare butoanelor
     boolean afGamepad1y = false, afGamepad1a = false, afGamepad1b = false, afGamepad1x = false, afGamepad2y = false, afGamepad2a = false, afGamepad2b = false, afGamepad2x = false;
@@ -29,12 +26,13 @@ public class GamepadControl extends RobotOpMode
 
     @Override
     public void start() {
-        runtime.reset();
+        robot.initAllMotors();
+        robot.initServos();
     }
 
     @Override
     public void loop() {
-        telemetry.addData("Status", "Running: " + runtime.toString());
+        setStatus("Running: " + runtime.toString());
 
         //CONTROL TRACTIUNE
         //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -42,31 +40,31 @@ public class GamepadControl extends RobotOpMode
         //Accesare tractiune
 
         // varianta1
-        //power = gamepad1.right_trigger - gamepad1.left_trigger;
-        //directie = gamepad1.left_stick_x;
-        //if (power >= 0)
-            //tractiuneRobot (power + directie, power - directie, tractiune);
-        //if (power < 0)
-            //tractiuneRobot (power - directie, power + directie, tractiune);
+        power = gamepad1.right_trigger - gamepad1.left_trigger;
+        directie = gamepad1.left_stick_x;
+
+        //setBoost(gamepad1.right_bumper);
+
+        if (power >= 0)
+            tractiuneRobot (power + directie, power - directie, tractiune);
+        else
+            tractiuneRobot (power - directie, power + directie, tractiune);
 
         //varianta2
-        tractiuneRobot (- gamepad1.left_stick_y, -gamepad1.right_stick_y, tractiune);
+        //tractiuneRobot (- gamepad1.left_stick_y, -gamepad1.right_stick_y, tractiune);
 
 
         //schimb tractiune
-        if (gamepad1.dpad_up && runtime.time() - timerGamepad1Dpad >= TIME_AFTER_PRESS_BUTTON) {
-            tractiune = 'f';
-            timerGamepad1Dpad = runtime.time();
+        if (checkButtonToggle(1, GamepadButton.dpad_up)) {
+            tractiune = Traction.Front;
         }
 
-        if (gamepad1.dpad_down && runtime.time() - timerGamepad1Dpad >= TIME_AFTER_PRESS_BUTTON) {
-            tractiune = 's';
-            timerGamepad1Dpad = runtime.time();
+        if (checkButtonToggle(1, GamepadButton.dpad_down)) {
+            tractiune = Traction.Back;
         }
 
-        if (gamepad1.dpad_left && runtime.time() - timerGamepad1Dpad >= TIME_AFTER_PRESS_BUTTON) {
-            tractiune = 'i';
-            timerGamepad1Dpad = runtime.time();
+        if (checkButtonToggle(1, GamepadButton.dpad_left)) {
+            tractiune = Traction.Both;
         }
 
         //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -78,19 +76,27 @@ public class GamepadControl extends RobotOpMode
         //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
         //Aspirat mingi
-        if(gamepad1.b && runtime.time() - timerGamepad1b >= TIME_AFTER_PRESS_BUTTON){
+        if(checkButtonToggle(1, GamepadButton.b)){
             afGamepad1b = !afGamepad1b;
             grabBalls (afGamepad1b);
+        }
 
-            timerGamepad1b = runtime.time();
+        //Reverse mingi
+        if(checkButtonToggle(1, GamepadButton.y)){
+            afGamepad1y = !afGamepad1y;
+            reverseBalls(afGamepad1y);
+        }
+
+        //Pregatire aruncare mingi
+        if (checkButtonToggle(1, GamepadButton.x)){
+            afGamepad1x = !afGamepad1x;
+            prepareFire(afGamepad1x);
         }
 
         //Aruncare mingi
-        if(gamepad1.a && runtime.time() - timerGamepad1a >= TIME_AFTER_PRESS_BUTTON){
+        if(checkButtonToggle(1, GamepadButton.a)){
             afGamepad1a = !afGamepad1a;
             fireBalls (afGamepad1a);
-
-            timerGamepad1a = runtime.time();
         }
 
         //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

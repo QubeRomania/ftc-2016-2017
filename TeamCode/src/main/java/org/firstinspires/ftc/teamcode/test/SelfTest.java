@@ -1,7 +1,9 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.test;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.teamcode.RobotOpMode;
 
 /**
  * This OpMode is meant to test the robot's autonomy.
@@ -10,24 +12,22 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 @Autonomous(name="Robot Self Test", group="Tests")
 // @Disabled
 public final class SelfTest extends RobotOpMode {
-    private ElapsedTime timer = new ElapsedTime();
-
     @Override
     public void start()
     {
-        timer.reset();
+        robot.initDriveMotors();
     }
 
     @Override
     public void loop() {
-        if (timer.seconds() < 1) {
-            tractiuneRobot (0.5, 0.5, 'i');
+        if (runtime.seconds() < 1) {
+            tractiuneIntegrala (0.5, 0.5);
 
-            telemetry.addData("Status:", "Running...");
-            //telemetry.addData("Power: %f", robot.leftFrontMotor.getPower());
+            telemetry.addData("Status", "Running...");
+            telemetry.addData("Power", "%f", robot.leftFrontMotor.getPower());
             telemetry.update();
         } else {
-            tractiuneRobot (0, 0, 'i');
+            tractiuneIntegrala (0, 0);
 
             telemetry.addData("Status: ", "Self test passed.");
             telemetry.update();
