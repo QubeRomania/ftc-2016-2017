@@ -1,140 +1,70 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
-/**
- * Created by Codrin on 2/21/2017.
- */
-
-/*
-//INVENTAR FUNCTII PLUS DESCRIERE
-//-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-    void:
-        tractiuneRobot
-            double i - putere motoare stanga
-            double j - putere potoare dreapta
-            char tr - selectarea tractiunii
-
-        tractiuneIntegrala
-            double i - putere motoare stanga
-            double j - putere motare dreapta
-
-        tractiuneSpate
-            double i - putere motor spate stanga
-            double j - putere motor spate dreapta
-
-        tractiuneFata
-            double i - putere motor fata stanga
-            double j - putere motor fata dreapta
-
-        grabBalls
-            booolean af - daca motorul cu care strangem bilelel sa fie portnit sau nu
-
-        fireBalls
-            boolean af - daca motoarele care arunca bulele sa fie pornit sau nu si daca servoul sa lasa mingile sa treaca sau nu
-
-        liftBall
-            double power - puterea motorului care trage sfoara si ridica mingea
-
-        grabBall
-            boolean af1 - daca mingea este sau nu pe robot
-            booleean af2 - daca sa initializam hardwareul de ridicarea mingii mari
-
-        setStatus
-            string msg - statusul care va fi afisat pe consola
-
-        mesage
-            string msg - mesaj afisat pe consola
-
-//-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-   */
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Map;
 
 public abstract class RobotOpMode extends OpMode {
 
     //CONSTANTE
     public static final double MOTOR_LIMIT = 0.78;
-    public static final double TIME_AFTER_PRESS_BUTTON = 0.2;
-    public static final double FIRE_POWER = 0.78;
-    public static final double GRAB_POWER = 0.78;
+    //public static final double MUIE_ROBOTI = 1;
+    public static final double TIME_AFTER_PRESS_BUTTON = 0.3;
+    public static final double FIRE_POWER = 0.25;
+    public static final double GRAB_POWER = 0.9;
+
+    public static double multiplier = MOTOR_LIMIT;
 
     protected Hardware robot = new Hardware();
 
+    protected ElapsedTime runtime = new ElapsedTime();
 
-    protected void tractiuneRobot (double i, double j, char tr){
-        if (i > 1)
-            i = 1;
-        if (i < - 1)
-            i = - 1;
-        if (j > 1)
-            j = 1;
-        if (j < - 1)
-            j = - 1;
+    public static double clamp(double value, double min, double max) {
+        return Math.max(min, Math.min(max, value));
+    }
 
-        if (tr == 'i'){
-            robot.leftFrontMotor.setPower(i * MOTOR_LIMIT);
-            robot.rightFrontMotor.setPower(-j * MOTOR_LIMIT);
-            robot.leftBackMotor.setPower(i * MOTOR_LIMIT);
-            robot.rightBackMotor.setPower(-j * MOTOR_LIMIT);
-        }
-        if (tr == 's'){
-            robot.leftFrontMotor.setPower(0);
-            robot.rightFrontMotor.setPower(0);
-            robot.leftBackMotor.setPower(i * MOTOR_LIMIT);
-            robot.rightBackMotor.setPower(-j * MOTOR_LIMIT);
-        }
-        if (tr == 'f'){
-            robot.leftFrontMotor.setPower(i * MOTOR_LIMIT);
-            robot.rightFrontMotor.setPower(-j * MOTOR_LIMIT);
-            robot.leftBackMotor.setPower(0);
-            robot.rightBackMotor.setPower(0);
-        }
+    /*public void setBoost(boolean boost) {
+        multiplier = boost ? MUIE_ROBOTI : MOTOR_LIMIT;
+    }*/
 
+    protected void tractiuneRobot (double i, double j, Traction tr){
+        if (tr == Traction.Both){
+            tractiuneFata(i, j);
+            tractiuneSpate(i, j);
+        } else if (tr == Traction.Back){
+            tractiuneFata(0, 0);
+            tractiuneSpate(i, j);
+        } else if (tr == Traction.Front){
+            tractiuneFata(i, j);
+            tractiuneSpate(0, 0);
+        }
+    }
+
+    protected void tractiuneSpate (double left, double right){
+        left = clamp(left, -1, 1);
+        right = clamp(right, -1, 1);
+
+        robot.leftBackMotor.setPower(left * multiplier);
+        robot.rightBackMotor.setPower(-right * multiplier);
+    }
+
+    protected void tractiuneFata (double left, double right){
+        left = clamp(left, -1, 1);
+        right = clamp(right, -1, 1);
+        
+        robot.leftFrontMotor.setPower(left * multiplier);
+        robot.rightFrontMotor.setPower(-right * multiplier);
     }
 
     protected void tractiuneIntegrala (double i, double j){
-        if (i > 1)
-            i = 1;
-        if (i < - 1)
-            i = - 1;
-        if (j > 1)
-            j = 1;
-        if (j < - 1)
-            j = - 1;
-        //robot.leftFrontMotor.setPower(i * MOTOR_LIMIT);
-        //robot.rightFrontMotor.setPower(-j * MOTOR_LIMIT);
-        //robot.leftBackMotor.setPower(i * MOTOR_LIMIT);
-        //robot.rightBackMotor.setPower(-j * MOTOR_LIMIT);
+        tractiuneSpate(i, j);
+        tractiuneFata(i, j);
     }
-
-    protected void tractiuneSpate (double i, double j){
-        if (i > 1)
-            i = 1;
-        if (i < - 1)
-            i = - 1;
-        if (j > 1)
-            j = 1;
-        if (j < - 1)
-            j = - 1;
-        //robot.leftBackMotor.setPower(i * MOTOR_LIMIT);
-        //robot.rightBackMotor.setPower(-j * MOTOR_LIMIT);
-    }
-
-    protected void tractiuneFata (double i, double j){
-        if (i > 1)
-            i = 1;
-        if (i < - 1)
-            i = - 1;
-        if (j > 1)
-            j = 1;
-        if (j < - 1)
-            j = - 1;
-        //robot.leftFrontMotor.setPower(i * MOTOR_LIMIT);
-        //robot.rightFrontMotor.setPower(-j * MOTOR_LIMIT);
-    }
-
-
-
 
 
     protected void grabBalls (boolean af){
@@ -146,23 +76,36 @@ public abstract class RobotOpMode extends OpMode {
         }
     }
 
-    protected void fireBalls (boolean af){
+    protected void reverseBalls (boolean af){
         if (af == true){
-            //robot.fireLeftMotor.setPower(FIRE_POWER);
-            //robot.fireRightMotor.setPower(-FIRE_POWER);
-            //robot.servoFire.setPosition(1);
+            robot.grabMotor.setPower(-GRAB_POWER);
         }
         else{
-            //robot.fireLeftMotor.setPower(0);
-            //robot.fireRightMotor.setPower(0);
-            //robot.servoFire.setPosition(0.5);
+            robot.grabMotor.setPower(0);
         }
     }
 
+    protected void prepareFire (boolean af){
+        if (af == true)
+            robot.servoFire.setFiring(true);
+        else
+            robot.servoFire.setFiring(false);
+
+    }
+
+    protected void fireBalls (boolean af){
+        if (af == true){
+            robot.fireLeftMotor.setPower(FIRE_POWER);
+            robot.fireRightMotor.setPower(-FIRE_POWER);
+        }
+        else{
+            robot.fireLeftMotor.setPower(0);
+            robot.fireRightMotor.setPower(0);}
+    }
 
 
-    protected void liftBall (double power){
-        //robot.liftingMotor.setPower(power * MOTOR_LIMIT);
+    protected void liftBall (double power) {
+        robot.liftingMotor.setPower(power * MOTOR_LIMIT);
     }
 
 
@@ -174,8 +117,79 @@ public abstract class RobotOpMode extends OpMode {
             //codul pentru asteptarea initializarii bratelor
     }
 
+    private Map<GamepadButton, Double> lastTime = new Hashtable<>();
+    private Map<GamepadButton, Boolean> buttonLock = new Hashtable<>();
 
+    /// Implements a toggle button control on a gamepad. Pressing a toggle-able button has a delay.
+    protected boolean checkButtonToggle(int gamepad, GamepadButton button) {
+        boolean buttonValue = false;
 
+        Gamepad gp = ((gamepad == 1) ? gamepad1 : gamepad2);
+
+        switch (button) {
+            case a:
+                buttonValue = gp.a;
+                break;
+            case b:
+                buttonValue = gp.b;
+                break;
+            case x:
+                buttonValue = gp.x;
+                break;
+            case y:
+                buttonValue = gp.y;
+                break;
+            case dpad_down:
+                buttonValue = gp.dpad_down;
+                break;
+            case dpad_left:
+                buttonValue = gp.dpad_left;
+                break;
+            case dpad_up:
+                buttonValue = gp.dpad_up;
+                break;
+            case right_bumper:
+                buttonValue = gp.right_bumper;
+                break;
+            default:
+                buttonValue = false;
+                break;
+        }
+
+        // First time button press.
+        if (buttonLock.containsKey(button) == false) {
+            buttonLock.put(button, false);
+            lastTime.put(button, 0.0);
+
+            return buttonValue;
+        }
+
+        if (buttonValue == false) {
+            // Disable the button's lock.
+            buttonLock.put(button, false);
+            return false;
+        }
+
+        if (buttonLock.get(button) == true)
+            return false;
+
+        buttonLock.put(button, true);
+
+        if (runtime.time() - lastTime.get(button) > TIME_AFTER_PRESS_BUTTON) {
+            lastTime.put(button, runtime.time());
+            return true;
+        }
+
+        return false;
+    }
+
+    public final void sleep(long milliseconds) {
+        try {
+            Thread.sleep(milliseconds);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
 
 
     protected void setStatus (String msg){
@@ -192,6 +206,8 @@ public abstract class RobotOpMode extends OpMode {
     public void init() {
         setStatus ("Initialized");
         robot.init(hardwareMap);
+
+        runtime.reset();
     }
 
     @Override
