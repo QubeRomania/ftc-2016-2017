@@ -7,6 +7,5 @@ Our app is meant to work on Android 5.0 or newer devices.
 
 The documentation for the FTC API is [available online](http://ftctechnh.github.io/ftc_app/doc/javadoc/index.html).
 
-Contributors:
- Gabriel Majeri
- Andrei Daha
+Contributors: 
+* The QUBE team's programmers
