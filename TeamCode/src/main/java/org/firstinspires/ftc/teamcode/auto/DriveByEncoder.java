@@ -38,7 +38,7 @@ public final class DriveByEncoder extends RobotOpMode {
 
         robot.setDriveMotorTargetPosition(newPos);
 
-        tractiuneIntegrala(speed, speed);
+        robot.tractiuneIntegrala(speed, speed);
 
         double timeoutBegin = runtime.milliseconds();
 
@@ -46,7 +46,7 @@ public final class DriveByEncoder extends RobotOpMode {
             sleep(10);
         }
 
-        tractiuneIntegrala(0, 0);
+        robot.tractiuneIntegrala(0, 0);
 
         robot.setDriveMotorsRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }

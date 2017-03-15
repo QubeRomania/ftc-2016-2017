@@ -21,13 +21,13 @@ public final class SelfTest extends RobotOpMode {
     @Override
     public void loop() {
         if (runtime.seconds() < 1) {
-            tractiuneIntegrala (0.5, 0.5);
+            robot.tractiuneIntegrala (0.5, 0.5);
 
             telemetry.addData("Status", "Running...");
             telemetry.addData("Power", "%f", robot.leftFrontMotor.getPower());
             telemetry.update();
         } else {
-            tractiuneIntegrala (0, 0);
+            robot.tractiuneIntegrala (0, 0);
 
             telemetry.addData("Status: ", "Self test passed.");
             telemetry.update();
