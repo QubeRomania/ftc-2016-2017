@@ -1,96 +1,231 @@
 package org.firstinspires.ftc.teamcode.auto;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.RobotOpMode;
-import org.firstinspires.ftc.teamcode.Traction;
+import org.firstinspires.ftc.teamcode.LinearRobotOpMode;
 
-public final class FirstAutonomy extends RobotOpMode {
+@Autonomous(name = "First autonomy", group = "Autonomy")
+public final class FirstAutonomy extends LinearRobotOpMode {
+
+    public static final double THINKING_TIME = 2.0;
+    static final double LEFT_BASE_SPEED = 0.4;
+    static final double RIGHT_BASE_SPEED = 0.5;
+
+    public double time;
+    public double error;
+    public double direction = 0;
+    public double angle;
+    public double distance = 40;
+
+    public String culoare = null;
+
 
     @Override
-    public void start() {
-        robot.initAllMotors();
+    public void play() {
+
         robot.initServos();
-        //robot.initSensors();
-    }
+        robot.initAllMotors();
+        robot.initSensors();
 
-    @Override
-    public void loop() {
+        robot.gyro.calibrate();
 
-        // Drive forward.
-        tractiuneRobot(1, 1, Traction.Both);
-        sleep(1100);
-        tractiuneRobot(0, 0, Traction.Both);
+        while (robot.gyro.isCalibrating()){
+            setStatus("Calibrating");
+            update();
+            idle();
+        }
+        telemetry.addData("Done", "!");
+        telemetry.update();
 
-        // Fire motors
-        prepareFire(true);
-        sleep(1000);
-        fireBalls(true);
-        sleep(4000);
-        grabBalls(true);
-        sleep(300);
-        grabBalls(false);
-        fireBalls(false);
-        prepareFire(false);
-/*
-        // Turn to the beacon
-        tractiuneRobot(-1, 1, Traction.Both);
-        sleep(200);
-        tractiuneIntegrala(0, 0);
-        sleep(200);
+        waitForStart();
 
-        // Go to the beacon
-        tractiuneRobot(1, 1, Traction.Both);
+        runtime.reset();
 
-        while (robot.colorSensorLine.alpha() < 10) {
-            setStatus("mergem");
+        time = runtime.time();
+
+
+        while(runtime.time() - time <= 1.3){
+            angle = robot.gyro.getIntegratedZValue();
+            error = direction - angle;
+            robot.tractiuneIntegrala(LEFT_BASE_SPEED - (error / 50), RIGHT_BASE_SPEED + (error / 50));
+
+            telemetry.addData("Gyro Z value", robot.gyro.getIntegratedZValue());
+            telemetry.update();
         }
 
-        tractiuneRobot(0, 0, Traction.Both);
+        robot.tractiuneIntegrala(0, 0);
 
-        // Ne aliniem ca sa apasam beacanul
-        while (Math.abs(robot.usdSensorLeft.getDistance(DistanceUnit.CM) - robot.usdSensorRight.getDistance(DistanceUnit.CM)) <= 4) {
-            if (robot.usdSensorLeft.getDistance(DistanceUnit.CM) <= robot.usdSensorRight.getDistance(DistanceUnit.CM))
-                tractiuneRobot(-0.3, 0.3, Traction.Both);
+        //telemetry.addData("dorm", "!");
+        //telemetry.update();
 
-            if (robot.usdSensorLeft.getDistance(DistanceUnit.CM) > robot.usdSensorRight.getDistance(DistanceUnit.CM)){
-                tractiuneRobot(0.3, -0.3, Traction.Both);
+        //sleep (10000);
+
+        robot.prepareFire(true);
+        robot.fireBalls(true);
+        sleep(700);
+        robot.grabBalls(true);
+        sleep(500);
+        robot.grabBalls(false);
+        sleep(500);
+        robot.grabBalls(true);
+        sleep(5000);
+        robot.grabBalls(false);
+        robot.prepareFire(false);
+        robot.fireBalls(false);
+
+        direction = 60;
+        error = 0;
+        time = runtime.time();
+        while(runtime.time() - time <= 4 && robot.lightSensorLeft.getLightDetected() < 0.2){
+            telemetry.addData("lumina", robot.lightSensorLeft.getLightDetected());
+            angle = robot.gyro.getIntegratedZValue();
+            error = direction - angle;
+            telemetry.addData("unghi", angle);
+            telemetry.addData("eroare", error);
+            robot.tractiuneIntegrala(LEFT_BASE_SPEED -(error / 50), RIGHT_BASE_SPEED + (error / 50));
+
+            telemetry.addData("Cautam", "linia");
+            telemetry.update();
+        }
+
+        robot.tractiuneIntegrala(0.2, 0.2);
+        sleep(500);
+        robot.tractiuneIntegrala(0, 0);
+
+        direction = 0;
+        while (robot.gyro.getIntegratedZValue() >= 15){
+            robot.tractiuneIntegrala(0.78, -0.78);
+        }
+
+        robot.tractiuneIntegrala(0, 0);
+        sleep(1000);
+
+        while (robot.colorSensorLine.argb() < 5){
+            robot.tractiuneIntegrala(-0.2, -0.2);
+        }
+
+        robot.tractiuneIntegrala(0, 0);
+        sleep(1000);
+
+        while (robot.gyro.getIntegratedZValue() < 75){
+            robot.tractiuneIntegrala(-0.78, 0.78);
+        }
+
+        robot.tractiuneIntegrala(0, 0);
+        sleep(1000);
+
+        direction = 0;
+        while(robot.gyro.getIntegratedZValue() != 0){
+            angle = robot.gyro.getIntegratedZValue();
+            error = direction - angle;
+            robot.tractiuneIntegrala(LEFT_BASE_SPEED -(error / 50), RIGHT_BASE_SPEED + (error / 50));
+        }
+        robot.tractiuneIntegrala(0, 0);
+        sleep(1000);
+
+        while (robot.usdSensorFrontRight.getDistance(DistanceUnit.CM) >= 15){
+            robot.tractiuneIntegrala(0.2, 0.3);
+        }
+        robot.tractiuneIntegrala(0, 0);
+        sleep(1000);
+
+        time = runtime.time();
+
+        while (runtime.time() - time <= THINKING_TIME && culoare == null) {
+
+            if (robot.colorSensorBeacon.red() - robot.colorSensorBeacon.blue() >= 2) {
+                telemetry.addData("rosu", robot.colorSensorBeacon.red());
+                telemetry.update();
+                culoare = "rosu";
+                robot.servoBeacon.setPosition(1);
+            }
+            if (robot.colorSensorBeacon.blue() - robot.colorSensorBeacon.red() >= 2) {
+                telemetry.addData("albastru", robot.colorSensorBeacon);
+                telemetry.update();
+                culoare = "albastru";
+                robot.servoBeacon.setPosition(0);
+
             }
         }
 
-        tractiuneRobot(0, 0, Traction.Both);
-
-        // Mergem in fata putin
-        while (robot.usdSensorLeft.getDistance(DistanceUnit.CM) >= 7) {
-            tractiuneRobot(0.4, 0.4, Traction.Both);
-        }
-        tractiuneIntegrala(0, 0);
-
-        // colorSensorBeacon este rosu daca e >= 6 si albastru daca e < 6;
-
-        boolean color; // 0 daca e albastru si 1 daca e rosu
-        // Vedem starea beaconului
-        if (robot.colorSensorBeacon.argb() >= 6)
-            color = true;
-        else
-            color = false;
-
-        //daca e rosu
-        if (color == true) {
-            robot.servoBeacon.setPosition(1);
-        }
-        //daca e albastru
-        else{
-            robot.servoBeacon.setPosition(0);
-        }
-
-        tractiuneRobot(0.5, 0.5, Traction.Both);
         sleep(1000);
 
-        tractiuneRobot(-0.5, -0.5, Traction.Both);
+        telemetry.addData("Status", "Culoarea este ", culoare);
+        telemetry.update();
+
+        while(robot.usdSensorFrontRight.getDistance(DistanceUnit.CM) >= 10){
+            robot.tractiuneIntegrala(0.4, 0.4);
+        }
+        robot.tractiuneIntegrala(0, 0);
+        sleep(1000);
+
+
+        robot.tractiuneIntegrala(-0.2, -0.2);
+
         sleep(500);
 
-        tractiuneRobot(0, 0, Traction.Both);
-*/
-        requestOpModeStop();
+        direction = 0;
+        while (robot.gyro.getIntegratedZValue() >= 10){
+            robot.tractiuneIntegrala(0.78, -0.78);
+        }
+
+
+        robot.tractiuneIntegrala(0, 0);
+        sleep(500);
+
+
+        direction = 0;
+        time = runtime.time();
+        while(robot.colorSensorLine.argb() < 8 || runtime.time() - time < 2){
+            angle = robot.gyro.getIntegratedZValue();
+            error = direction - angle;
+            error += robot.usdSensorRightLeft.getDistance(DistanceUnit.CM) - distance;
+            robot.tractiuneIntegrala(LEFT_BASE_SPEED - (error / 50), RIGHT_BASE_SPEED + (error / 50));
+        }
+
+
+        direction = 90;
+        error = 90;
+        while( Math.abs(error)  >= 10) {
+            angle = robot.gyro.getIntegratedZValue();
+            error = direction - angle;
+            robot.tractiuneIntegrala(-0.78, 0.78);
+        }
+        robot.tractiuneIntegrala(0, 0);
+        sleep(1000);
+
+
+        time = runtime.time();
+
+        while (runtime.time() - time <= THINKING_TIME && culoare == null) {
+
+            if (robot.colorSensorBeacon.red() - robot.colorSensorBeacon.blue() >= 2) {
+                telemetry.addData("rosu", robot.colorSensorBeacon.red());
+                telemetry.update();
+                culoare = "rosu";
+                robot.servoBeacon.setPosition(1);
+            }
+            if (robot.colorSensorBeacon.blue() - robot.colorSensorBeacon.red() >= 2) {
+                telemetry.addData("albastru", robot.colorSensorBeacon);
+                telemetry.update();
+                culoare = "albastru";
+                robot.servoBeacon.setPosition(0);
+
+            }
+        }
+
+        sleep(1000);
+
+        telemetry.addData("Status", "Culoarea este ", culoare);
+        telemetry.update();
+
+        while(robot.usdSensorFrontRight.getDistance(DistanceUnit.CM) >= 10){
+            robot.tractiuneIntegrala(0.4, 0.4);
+        }
+
+        robot.tractiuneIntegrala(0, 0);
+        sleep(1000);
+
     }
 }
