@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Robot name="Robotul Ramses" type="FirstInspires-FTC-template">
+    <MotorController name="Back Drive Motors" serialNumber="N/A">
+        <Motor name="leftBackMotor" port="1" />
+        <Motor name="rightBackMotor" port="2" />
+    </MotorController>
+    <MotorController name="Front Drive Motors" serialNumber="N/A">
+        <Motor name="leftFrontMotor" port="1" />
+        <Motor name="rightFrontMotor" port="2" />
+    </MotorController>
+    <MotorController name="Firing Motors" serialNumber="N/A">
+        <Motor name="fireLeftMotor" port="1" />
+        <Motor name="fireRightMotor" port="2" />
+    </MotorController>
+    <MotorController name="Grab Motors" serialNumber="N/A">
+        <Motor name="grabMotor" port="1" />
+        <Motor name="liftingMotor" port="2" />
+    </MotorController>
+    <ServoController name="Servo Controller" serialNumber="N/A">
+        <Servo name="servoFire" port="1" />
+        <Servo name="servoGrabBallUp" port="2" />
+        <Servo name="servoGrabBallDown" port="3" />
+        <Servo name="servoBeacon" port="4" />
+    </ServoController>
+    <DeviceInterfaceModule name="Sensors" serialNumber="N/A">
+        <OpticalDistanceSensor name="odsSensor" port="0" />
+        <GyroSensor name="gyro" port="0" />
+    </DeviceInterfaceModule>
+</Robot>
