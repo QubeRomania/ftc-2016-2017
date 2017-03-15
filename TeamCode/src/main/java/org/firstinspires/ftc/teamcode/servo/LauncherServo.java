@@ -5,8 +5,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public final class LauncherServo {
-    static final double OPEN_POSITION = 0.8;
-    static final double CLOSED_POSITION = 0.15;
+    static final double OPEN_POSITION = 1;
+    static final double CLOSED_POSITION = 0;
 
     Servo servo;
     boolean isFiring = false;
@@ -26,6 +26,10 @@ public final class LauncherServo {
     public void setFiring(boolean firing) {
         isFiring = firing;
         updateServo();
+    }
+
+    public void close() {
+        servo.close();
     }
 
     private void updateServo() {
