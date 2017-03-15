@@ -1,8 +1,10 @@
 package org.firstinspires.ftc.teamcode.drive;
 
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.GamepadButton;
 import org.firstinspires.ftc.teamcode.RobotOpMode;
 import org.firstinspires.ftc.teamcode.Traction;
@@ -14,12 +16,21 @@ public class GamepadControl extends RobotOpMode
     //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     //variabele control miscare robot
-    double power = 0;
+    double motorPower = 0, grabPower = 0;
     double directie;
     Traction tractiune = Traction.Both;
 
     //variabelele care tin minte stare butoanelor
-    boolean afGamepad1y = false, afGamepad1a = false, afGamepad1b = false, afGamepad1x = false, afGamepad2y = false, afGamepad2a = false, afGamepad2b = false, afGamepad2x = false;
+    boolean afGamepad1y = false, afGamepad1a = false, afGamepad1b = false, afGamepad1x = false, afGamepad1start = false, afgamepad1rightBumper = false, afGamepad2y = false, afGamepad2a = false, afGamepad2b = false, afGamepad2x = false, afgamepad2start = false, afGamepad2rightBumper = false;
+
+    //variabila control mod leftTrigger, rightTrigger
+    boolean changeModeGamepad2 = false;
+
+    //variabila control mod condus
+    boolean changeModeGamepad1 = false;
+
+    //variabila sens condus
+    boolean sens = false;
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -32,26 +43,52 @@ public class GamepadControl extends RobotOpMode
 
     @Override
     public void loop() {
-        setStatus("Running: " + runtime.toString());
 
         //CONTROL TRACTIUNE
         //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+        //schimb mod de condus
+        if (checkButtonToggle(1, GamepadButton.startButton)){
+            changeModeGamepad1 = !changeModeGamepad1;
+            robot.tractiuneRobot(0, 0, Traction.Both);
+        }
+
+        //schimb sens de condus
+        if (checkButtonToggle(1, GamepadButton.y)){
+            afGamepad1y = !afGamepad1y;
+            sens = !sens;
+        }
+
         //Accesare tractiune
 
         // varianta1
-        power = gamepad1.right_trigger - gamepad1.left_trigger;
-        directie = gamepad1.left_stick_x;
+        if (changeModeGamepad1 == false) {
+            motorPower = gamepad1.right_trigger - gamepad1.left_trigger;
+            directie = gamepad1.left_stick_x;
 
-        //setBoost(gamepad1.right_bumper);
+            //if (motorPower >= 0)
+                robot.tractiuneRobot(motorPower + directie, motorPower - directie, tractiune);
+            //else
+                //robot.tractiuneRobot(motorPower - directie, motorPower + directie, tractiune);
 
-        if (power >= 0)
-            tractiuneRobot (power + directie, power - directie, tractiune);
-        else
-            tractiuneRobot (power - directie, power + directie, tractiune);
+            /*if (sens = true){
+                motorPower = gamepad1.left_trigger - gamepad1.right_trigger;
+                directie = - gamepad1.left_stick_x;
+
+                if (motorPower >= 0)
+                    robot.tractiuneRobot(motorPower + directie, motorPower - directie, tractiune);
+                else
+                    robot.tractiuneRobot(motorPower - directie, motorPower + directie, tractiune);
+            }*/
+        }
 
         //varianta2
-        //tractiuneRobot (- gamepad1.left_stick_y, -gamepad1.right_stick_y, tractiune);
+        if (changeModeGamepad1 == true) {
+            if (sens = false)
+                robot.tractiuneRobot(-gamepad1.left_stick_y, -gamepad1.right_stick_y, tractiune);
+            else
+                robot.tractiuneRobot(gamepad1.left_stick_x, gamepad1.right_stick_x, tractiune);
+        }
 
 
         //schimb tractiune
@@ -70,42 +107,70 @@ public class GamepadControl extends RobotOpMode
         //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
+        //Apasare beacon
+        if(checkButtonToggle(1, GamepadButton.a)){
+            afGamepad1a = !afGamepad1a;
+            robot.changeSide(afGamepad1a);
+        }
+
+        //Schimb mod control gamepad2
+        if (checkButtonToggle(2, GamepadButton.startButton)){
+            changeModeGamepad2 = !changeModeGamepad2;
+            robot.grabBallsv2(0);
+            robot.liftBall(0);
+        }
 
 
         //ARUNCARE MINGI LA VORTEX
         //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        //Aspirat mingi
-        if(checkButtonToggle(1, GamepadButton.b)){
-            afGamepad1b = !afGamepad1b;
-            grabBalls (afGamepad1b);
-        }
+        if (changeModeGamepad2 == false) {
+            /*//Aspirat mingi
+            if(checkButtonToggle(2, GamepadButton.b)){
+                afGamepad2b = !afGamepad2b;
+                grabBalls (afGamepad2b);
+            }
 
-        //Reverse mingi
-        if(checkButtonToggle(1, GamepadButton.y)){
-            afGamepad1y = !afGamepad1y;
-            reverseBalls(afGamepad1y);
-        }
+            //Reverse mingi
+            if(checkButtonToggle(2, GamepadButton.y)){
+                afGamepad2y = !afGamepad2y;
+                reverseBalls(afGamepad2y);
+            }*/
 
-        //Pregatire aruncare mingi
-        if (checkButtonToggle(1, GamepadButton.x)){
-            afGamepad1x = !afGamepad1x;
-            prepareFire(afGamepad1x);
-        }
+            grabPower = gamepad2.right_trigger - gamepad2.left_trigger;
+            //Aspirat si ridicat + reverse mingi
+            robot.grabBallsv2(grabPower);
 
-        //Aruncare mingi
-        if(checkButtonToggle(1, GamepadButton.a)){
-            afGamepad1a = !afGamepad1a;
-            fireBalls (afGamepad1a);
+            //Pregatire aruncare mingi
+            if (checkButtonToggle(2, GamepadButton.right_bumper)) {
+                afGamepad2rightBumper = !afGamepad2rightBumper;
+                robot.prepareFire(afGamepad2rightBumper);
+            }
+
+            //Aruncare mingi
+            robot.fireBalls(checkButtonHold(2, GamepadButton.a));
         }
 
         //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
 
         //PUNERE MINGE IN VORTEX
         //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        //Ridicare minge
-        liftBall(gamepad2.right_trigger);
+        if (changeModeGamepad2 == true) {
+
+            //Ridicare minge
+            robot.liftBall(gamepad2.right_trigger - gamepad2.left_trigger);
+
+            //Prindere minge
+            if (checkButtonToggle(1, GamepadButton.a)){
+                afGamepad2a = !afGamepad2a;
+                robot.grabBall(afGamepad2a);
+            }
+
+        }
 
         //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     }
