@@ -4,157 +4,112 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Const;
+
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Map;
 
 public abstract class RobotOpMode extends OpMode {
-
-    //CONSTANTE
-    public static final double MOTOR_LIMIT = 0.78;
-    //public static final double MUIE_ROBOTI = 1;
-    public static final double TIME_AFTER_PRESS_BUTTON = 0.3;
-    public static final double FIRE_POWER = 0.25;
-    public static final double GRAB_POWER = 0.9;
-
-    public static double multiplier = MOTOR_LIMIT;
+    static final double TIME_AFTER_PRESS_BUTTON_TOGGLE = 0.3;
+    static final double TIME_AFTER_PRESS_BUTTON_HOLD = 0;
 
     protected Hardware robot = new Hardware();
 
     protected ElapsedTime runtime = new ElapsedTime();
 
-    public static double clamp(double value, double min, double max) {
-        return Math.max(min, Math.min(max, value));
-    }
 
-    /*public void setBoost(boolean boost) {
-        multiplier = boost ? MUIE_ROBOTI : MOTOR_LIMIT;
-    }*/
-
-    protected void tractiuneRobot (double i, double j, Traction tr){
-        if (tr == Traction.Both){
-            tractiuneFata(i, j);
-            tractiuneSpate(i, j);
-        } else if (tr == Traction.Back){
-            tractiuneFata(0, 0);
-            tractiuneSpate(i, j);
-        } else if (tr == Traction.Front){
-            tractiuneFata(i, j);
-            tractiuneSpate(0, 0);
+    public final void sleep(long milliseconds) {
+        try {
+            Thread.sleep(milliseconds);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 
-    protected void tractiuneSpate (double left, double right){
-        left = clamp(left, -1, 1);
-        right = clamp(right, -1, 1);
-
-        robot.leftBackMotor.setPower(left * multiplier);
-        robot.rightBackMotor.setPower(-right * multiplier);
+    protected void setStatus (String msg){
+        telemetry.addData("Status", msg);
     }
 
-    protected void tractiuneFata (double left, double right){
-        left = clamp(left, -1, 1);
-        right = clamp(right, -1, 1);
-        
-        robot.leftFrontMotor.setPower(left * multiplier);
-        robot.rightFrontMotor.setPower(-right * multiplier);
+    protected void update() {
+        telemetry.update();
     }
 
-    protected void tractiuneIntegrala (double i, double j){
-        tractiuneSpate(i, j);
-        tractiuneFata(i, j);
-    }
+    private boolean getButtonValue(int gamepad, GamepadButton button) {
+        com.qualcomm.robotcore.hardware.Gamepad gp = ((gamepad == 1) ? gamepad1 : gamepad2);
 
-
-    protected void grabBalls (boolean af){
-        if (af == true){
-            robot.grabMotor.setPower(GRAB_POWER);
+        switch (button) {
+            case a:
+                return gp.a;
+            case b:
+                return gp.b;
+            case x:
+                return gp.x;
+            case y:
+                return gp.y;
+            case dpad_down:
+                return gp.dpad_down;
+            case dpad_left:
+                return gp.dpad_left;
+            case dpad_up:
+                return gp.dpad_up;
+            case right_bumper:
+                return gp.right_bumper;
+            case left_bumper:
+                return gp.left_bumper;
+            case startButton:
+                return gp.start;
+            default:
+                return false;
         }
-        else{
-            robot.grabMotor.setPower(0);
-        }
-    }
-
-    protected void reverseBalls (boolean af){
-        if (af == true){
-            robot.grabMotor.setPower(-GRAB_POWER);
-        }
-        else{
-            robot.grabMotor.setPower(0);
-        }
-    }
-
-    protected void prepareFire (boolean af){
-        if (af == true)
-            robot.servoFire.setFiring(true);
-        else
-            robot.servoFire.setFiring(false);
-
-    }
-
-    protected void fireBalls (boolean af){
-        if (af == true){
-            robot.fireLeftMotor.setPower(FIRE_POWER);
-            robot.fireRightMotor.setPower(-FIRE_POWER);
-        }
-        else{
-            robot.fireLeftMotor.setPower(0);
-            robot.fireRightMotor.setPower(0);}
-    }
-
-
-    protected void liftBall (double power) {
-        robot.liftingMotor.setPower(power * MOTOR_LIMIT);
-    }
-
-
-    protected void grabBall (boolean af1, boolean af2){
-        //if (af2 == true){
-            //codul pentru prinderea mingii
-        //}
-        //else
-            //codul pentru asteptarea initializarii bratelor
     }
 
     private Map<GamepadButton, Double> lastTime = new Hashtable<>();
+    private Map<GamepadButton, Boolean> lastState = new Hashtable<>();
+
+    /// Gets the current value for a button on the gamepad.
+    protected boolean checkButtonHoldDelay(int gamepad, GamepadButton button) {
+        boolean buttonState = getButtonValue(gamepad, button);
+
+        if (lastState.containsKey(button) == false) {
+            lastState.put(button, buttonState);
+            lastTime.put(button, runtime.time());
+
+            return lastState.get(button);
+        }
+
+        boolean lastButtonState = lastState.get(button);
+
+        double delay = TIME_AFTER_PRESS_BUTTON_HOLD;
+
+        if (lastButtonState == false)
+        {
+            delay = 0;
+        }
+
+        if (lastButtonState != buttonState) {
+            if (runtime.time() - lastTime.get(button) <= delay) {
+                return lastButtonState;
+            } else {
+                lastState.put(button, buttonState);
+                return buttonState;
+            }
+        } else {
+            lastTime.put(button, runtime.time());
+            return buttonState;
+        }
+    }
+
+    protected boolean checkButtonHold(int gamepad, GamepadButton button) {
+        return getButtonValue(gamepad, button);
+    }
+
     private Map<GamepadButton, Boolean> buttonLock = new Hashtable<>();
 
     /// Implements a toggle button control on a gamepad. Pressing a toggle-able button has a delay.
     protected boolean checkButtonToggle(int gamepad, GamepadButton button) {
-        boolean buttonValue = false;
-
-        Gamepad gp = ((gamepad == 1) ? gamepad1 : gamepad2);
-
-        switch (button) {
-            case a:
-                buttonValue = gp.a;
-                break;
-            case b:
-                buttonValue = gp.b;
-                break;
-            case x:
-                buttonValue = gp.x;
-                break;
-            case y:
-                buttonValue = gp.y;
-                break;
-            case dpad_down:
-                buttonValue = gp.dpad_down;
-                break;
-            case dpad_left:
-                buttonValue = gp.dpad_left;
-                break;
-            case dpad_up:
-                buttonValue = gp.dpad_up;
-                break;
-            case right_bumper:
-                buttonValue = gp.right_bumper;
-                break;
-            default:
-                buttonValue = false;
-                break;
-        }
+        boolean buttonValue = getButtonValue(gamepad, button);
 
         // First time button press.
         if (buttonLock.containsKey(button) == false) {
@@ -175,31 +130,12 @@ public abstract class RobotOpMode extends OpMode {
 
         buttonLock.put(button, true);
 
-        if (runtime.time() - lastTime.get(button) > TIME_AFTER_PRESS_BUTTON) {
+        if (runtime.time() - lastTime.get(button) > TIME_AFTER_PRESS_BUTTON_TOGGLE) {
             lastTime.put(button, runtime.time());
             return true;
         }
 
         return false;
-    }
-
-    public final void sleep(long milliseconds) {
-        try {
-            Thread.sleep(milliseconds);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-    }
-
-
-    protected void setStatus (String msg){
-        telemetry.addData("Status", msg);
-        telemetry.update();
-    }
-
-    protected void mesage (String msg){
-        telemetry.addData(msg, toString());
-        telemetry.update();
     }
 
     @Override
