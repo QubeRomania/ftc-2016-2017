@@ -41,6 +41,9 @@ public class GamepadControl extends RobotOpMode
         robot.initServos();
         robot.initSensors();
         robot.closeSensors();
+
+        gamepad1.reset();
+        gamepad2.reset();
     }
 
     @Override
@@ -53,6 +56,7 @@ public class GamepadControl extends RobotOpMode
         if (checkButtonToggle(1, GamepadButton.startButton)){
             changeModeGamepad1 = !changeModeGamepad1;
             robot.tractiuneRobot(0, 0, Traction.Both);
+            gamepad1.reset();
         }
 
         //schimb sens de condus
@@ -84,9 +88,8 @@ public class GamepadControl extends RobotOpMode
                     robot.tractiuneRobot(motorPower - directie, motorPower + directie, tractiune);
             }
         }
-
         //varianta2
-        if (changeModeGamepad1 == true) {
+        else {
             if (sens == false)
                 robot.tractiuneRobot(-gamepad1.left_stick_y, -gamepad1.right_stick_y, tractiune);
             else
@@ -170,8 +173,6 @@ public class GamepadControl extends RobotOpMode
         //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-
-
         //PUNERE MINGE IN VORTEX
         //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -181,10 +182,8 @@ public class GamepadControl extends RobotOpMode
             robot.liftBall(gamepad2.right_trigger - gamepad2.left_trigger);
 
             //Prindere minge
-            if (checkButtonToggle(2, GamepadButton.a)){
-                afGamepad2a = !afGamepad2a;
-                robot.grabBall(afGamepad2a);
-            }
+            if (changeModeGamepad2 == true)
+                robot.grabBall(gamepad2.left_stick_y);
 
         }
 
