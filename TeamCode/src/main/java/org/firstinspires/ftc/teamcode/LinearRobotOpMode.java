@@ -23,5 +23,16 @@ public abstract class LinearRobotOpMode extends LinearOpMode {
         play();
     }
 
+    public void waitForMs(long ms) {
+        ElapsedTime timer = new ElapsedTime();
+        double startTime = timer.milliseconds();
+
+        while (timer.milliseconds() - startTime < ms && opModeIsActive()) {
+            idle();
+        }
+    }
+
+
+    /// This function is to be overridden in real op-modes.
     protected abstract void play();
 }
