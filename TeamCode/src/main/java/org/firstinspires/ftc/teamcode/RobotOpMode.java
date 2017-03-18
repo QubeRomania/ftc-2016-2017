@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.util.Hashtable;
@@ -14,12 +16,13 @@ public abstract class RobotOpMode extends OpMode {
 
     protected ElapsedTime runtime = new ElapsedTime();
 
+    private boolean isRunning = false;
 
-    public static void sleep(long milliseconds) {
-        try {
-            Thread.sleep(milliseconds);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+    public void sleep(long milliseconds) {
+        ElapsedTime timer = new ElapsedTime();
+        while (timer.milliseconds() <= milliseconds && isRunning) {
+            setStatus("Sleeping...");
+            update();
         }
     }
 
@@ -136,13 +139,32 @@ public abstract class RobotOpMode extends OpMode {
     @Override
     public void init() {
         setStatus ("Initialized");
+        update();
+
         robot.init(hardwareMap);
 
         runtime.reset();
+
+        isRunning = true;
+    }
+
+    private void stopAllDevices() {
+        for (DcMotor motor : hardwareMap.getAll(DcMotor.class)) {
+            motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            motor.setPower(0);
+        }
+
+        for (I2cDevice device : hardwareMap.i2cDevice)
+            device.close();
     }
 
     @Override
     public void stop(){
         setStatus("robot stopped. I hope you won");
+        update();
+
+        isRunning = false;
+
+        stopAllDevices();
     }
 }
