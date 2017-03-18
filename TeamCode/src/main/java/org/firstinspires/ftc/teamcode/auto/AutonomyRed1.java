@@ -1,20 +1,13 @@
 package org.firstinspires.ftc.teamcode.auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.Hardware;
 import org.firstinspires.ftc.teamcode.LinearRobotOpMode;
 import org.firstinspires.ftc.teamcode.RobotOpMode;
-import org.firstinspires.ftc.teamcode.Traction;
-import org.firstinspires.ftc.teamcode.test.BeaconTest;
 
 @Autonomous(name = "AutonomyRed1", group = "Autonomy")
 public final class AutonomyRed1 extends LinearRobotOpMode {
-
 
     //CONSTANTE
 
@@ -25,7 +18,8 @@ public final class AutonomyRed1 extends LinearRobotOpMode {
     static final double RIGHT_SPEED = 0.75 / 2;
 
     /// In centimeters.
-    static final double DISTANCE_FROM_CENTER_VORTEX = 75;
+    static final double DISTANCE_FROM_CENTER_VORTEX = 65;
+    static final double DISTANCE_FROM_WALL = 15;
 
     //PID procentual
     static final double P = 20;
@@ -36,10 +30,6 @@ public final class AutonomyRed1 extends LinearRobotOpMode {
 
     //VARIABILE
     //pid
-    public double error = 0;
-    public double lastError = 0;
-    public double direction = 0;
-    public double angle = 0;
     public double motorCorrection = 0;
     public double multiplier = 9;
 
@@ -48,15 +38,10 @@ public final class AutonomyRed1 extends LinearRobotOpMode {
     public double rightFrontDistance = 0;
     public double sideDistance = 0;
 
-    public double lightLeft = 0;
-    public double lightRight = 0;
-
     //altele
     public String parteLinie = null;
 
-    private void rotate(int targetHeading){
-        this.direction = targetHeading;
-
+    private void rotate(int targetHeading) {
         int currentHeading, error, absError;
 
         do {
@@ -66,16 +51,15 @@ public final class AutonomyRed1 extends LinearRobotOpMode {
             absError = Math.abs(error);
 
             setStatus("Rotating to " + Integer.toString(targetHeading) + " degrees.");
-            telemetry.addData("Error", "%d deg", (int)error);
+            telemetry.addData("Error", "%d deg", (int) error);
             update();
 
             // Between 0.0 and 1.0
             double relError = absError / 180.0;
 
-            // Between 1.1 and 2.1
-            double powerModifier = 1.1 + relError;
+            double power = BASE_SPEED;
 
-            double power = BASE_SPEED * powerModifier;
+            // TODO: fix rotations.
 
             // Too much to the left.
             if (error > 0) {
@@ -90,6 +74,7 @@ public final class AutonomyRed1 extends LinearRobotOpMode {
 
         robot.tractiuneIntegrala(0, 0);
     }
+
     private void addDistanceData() {
         telemetry.addData("Left front distance", "%f cm", leftFrontDistance);
         telemetry.addData("Right front distance", "%f cm", rightFrontDistance);
@@ -97,73 +82,37 @@ public final class AutonomyRed1 extends LinearRobotOpMode {
     }
 
     private void calibrateGyro() {
+        setStatus("Started calibrating gyro.");
+        update();
+
         robot.gyro.calibrate();
 
-        while (robot.gyro.isCalibrating()){
+        while (robot.gyro.isCalibrating() && opModeIsActive()) {
             setStatus("Calibrating...");
             update();
+
             idle();
+        }
+
+        if (isStarted()) {
+            setStatus("Error: gyro NOT CALIBRATED!");
+
+            requestOpModeStop();
+            return;
         }
 
         setStatus("Done calibrating gyro.");
         update();
     }
 
-    private void fireAllParticles() {
-        setStatus("Throwing balls...");
-        update();
-
-        robot.fireBalls(true);
-
-        robot.prepareFire(true);
-
-        waitForMs(1500);
-
-        for (int ball = 1; ball <= 2; ++ball)
-        {
-            robot.grabBalls(true);
-            waitForMs(250);
-
-            robot.grabBalls(false);
-            waitForMs(1000);
-        }
-
-        robot.grabBalls(false);
-        robot.prepareFire(false);
-        robot.fireBalls(false);
-
-        setStatus("All balls fired");
-        update();
-    }
-
-    @Override
-    public void play() {
-
-        //START LOOP
-        //-------------------------------------------------------------------------------------------------------------------------
-
-        // Initializare hardware
-        robot.initServos();
-        robot.initAllMotors();
-        robot.initSensors();
-
-        calibrateGyro();
-
-        waitForStart();
-
-        //-------------------------------------------------------------------------------------------------------------------------
-
-        //ACTUAL CODE
-        //-------------------------------------------------------------------------------------------------------------------------
-
-        // Go towards center vortex.
+    private void goTowardsCenterVortex() {
         runtime.reset();
         time = runtime.time();
 
-        direction = 0;
-        angle = robot.gyro.getIntegratedZValue();
-        error = direction - angle;
-        lastError = error;
+        double direction = 0;
+        double angle = robot.gyro.getIntegratedZValue();
+        double error = direction - angle;
+        double lastError = error;
 
         addDistanceData();
 
@@ -182,93 +131,226 @@ public final class AutonomyRed1 extends LinearRobotOpMode {
             angle = robot.gyro.getIntegratedZValue();
             error = direction - angle;
         }
-        while (leftFrontDistance >= DISTANCE_FROM_CENTER_VORTEX || rightFrontDistance >= DISTANCE_FROM_CENTER_VORTEX);
+        while (leftFrontDistance >= DISTANCE_FROM_CENTER_VORTEX && rightFrontDistance >= DISTANCE_FROM_CENTER_VORTEX);
 
         robot.tractiuneIntegrala(0, 0);
 
-        waitForMs(1000);
+        waitForMs(600);
+    }
 
-        // Throw the particles.
-        fireAllParticles();
+    private void goTowardsFirstBeacon() {
+        rotate(46);
 
-        direction = 48;
-        angle = robot.gyro.getIntegratedZValue();
-        error = direction - angle;
-        lastError = error;
+        //double direction = 50;
+        double angle, error;
+        // double lastError = error;
 
-        lightLeft = robot.lightSensorLeft.getLightDetected();
-        lightRight = robot.lightSensorRight.getLightDetected();
+        double lightLeft;
 
-        time = runtime.seconds();
-        while (lightLeft <= 0.2 && lightRight <= 0.2 && runtime.seconds() - time < 3){
-            //PID
-           // motorCorrection = ((error * P + (error + lastError) * I + (error - lastError) * D) * scale) / 100;
+        runtime.reset();
 
-            robot.tractiuneIntegrala(BASE_SPEED - error / 50, BASE_SPEED + error / 50);
+        robot.tractiuneIntegrala(BASE_SPEED, BASE_SPEED);
 
+        do {
             lightLeft = robot.lightSensorLeft.getLightDetected();
-            lightRight = robot.lightSensorRight.getLightDetected();
 
-            telemetry.addData("lightLeft", lightLeft);
-            telemetry.addData("lightRight", lightRight);
-            telemetry.update();
+            // lastError = error;
+            //angle = robot.gyro.getIntegratedZValue();
+            //error = direction - angle;
 
-            lastError = error;
-            angle = robot.gyro.getIntegratedZValue();
-            error = direction - angle;
+            //PID
+            // motorCorrection = ((error * P + (error + lastError) * I + (error - lastError) * D) * scale) / 100;
+
+
+            //telemetry.addData("Gyro angle", "%f deg", angle);
+            //telemetry.addData("Gyro error", "%f deg", error);
+
+            telemetry.addData("Left light sensor", "Light detected %.2f", lightLeft);
+            update();
+        }
+        while (lightLeft <= 0.2 && runtime.seconds() < 4 && opModeIsActive());
+
+        if (runtime.seconds() >= 4)
+        {
+            setStatus("Error: line not found.");
+            update();
+
+            requestOpModeStop();
+
+            return;
         }
 
-        robot.tractiuneIntegrala(0, 0);
-        waitForMs(400);
+        robot.tractiuneIntegrala(0.4, 0.4);
 
-        robot.tractiuneIntegrala(0.5, 0.5);
-        waitForMs(700);
+        waitForMs(200);
 
         robot.tractiuneIntegrala(0, 0);
-        waitForMs(500);
+        waitForMs(300);
 
         rotate(20);
 
+        // Go back to white line.
         robot.tractiuneIntegrala(-0.2, -0.2);
 
-        while(robot.colorSensorLine.alpha() < 20) {
+        while (robot.colorSensorLine.alpha() < 20 && opModeIsActive()) {
             setStatus("Going back towards beacon.");
             update();
         }
 
-        robot.tractiuneIntegrala(0, 0);
-
+        // Go a bit forward.
         robot.tractiuneIntegrala(0.3, 0.3);
 
         waitForMs(200);
 
         robot.tractiuneIntegrala(0, 0);
 
-        waitForMs(300);
-
+        waitForMs(100);
 
         rotate(70);
+    }
 
-        waitForMs(1000);
+    private void fireAllParticles() {
+        setStatus("Throwing balls...");
+        update();
 
-        // Approach beacon.
+        robot.fireBalls(true);
 
-        robot.tractiuneIntegrala(0.2, 0.2);
+        robot.prepareFire(true);
 
-        while (robot.usdSensorFrontRight.getDistance(DistanceUnit.CM) >= 12 && opModeIsActive()) {
-            setStatus("Going towards beacon.");
-            update();
+        waitForMs(500);
+
+        robot.grabBalls(true);
+        waitForMs(250);
+
+        robot.grabBalls(false);
+        waitForMs(700);
+
+        robot.grabBalls(true);
+        waitForMs(250);
+
+        robot.grabBalls(false);
+        robot.prepareFire(false);
+        robot.fireBalls(false);
+
+        setStatus("All balls fired");
+        update();
+    }
+
+    private void goToBeacon() {
+        while (robot.usdSensorFrontRight.getDistance(DistanceUnit.CM) >= 15 && opModeIsActive()) {
+            robot.tractiuneIntegrala(0.2, 0.2);
         }
 
         robot.tractiuneIntegrala(0, 0);
-
         waitForMs(1000);
+    }
 
-        BeaconTest.pressBeacon(robot, telemetry);
+    private void pressBeacon() {
+        double THINKING_TIME = 2;
+
+        runtime.reset();
+
+        String color = null;
+
+        while (runtime.time() <= THINKING_TIME && color == null && opModeIsActive()) {
+            telemetry.addData("argb", robot.colorSensorBeacon.argb());
+            telemetry.addData("red", robot.colorSensorBeacon.red());
+            telemetry.addData("blue", robot.colorSensorBeacon.blue());
+            telemetry.update();
+
+            if (robot.colorSensorBeacon.red() - robot.colorSensorBeacon.blue() >= 2) {
+                telemetry.addData("rosu", robot.colorSensorBeacon.red());
+                color = "rosu";
+                robot.servoBeacon.setPosition(1);
+            }
+
+            if (robot.colorSensorBeacon.blue() - robot.colorSensorBeacon.red() >= 2) {
+                telemetry.addData("albastru", robot.colorSensorBeacon);
+                color = "albastru";
+                robot.servoBeacon.setPosition(0);
+            }
+
+            telemetry.update();
+        }
+
+        if (runtime.time() > THINKING_TIME)
+        {
+            telemetry.addData("Status", "Error: thinking time exceeded!");
+            telemetry.update();
+
+            return;
+        }
+
+        telemetry.addData("Beacon color", "The color is %s", color);
+        telemetry.update();
+
+        robot.tractiuneIntegrala(0.6, 0.6);
+
+        waitForMs(500);
+
+        robot.tractiuneIntegrala(-0.6, -0.6);
+
+        waitForMs(500);
+
+        robot.tractiuneIntegrala(0, 0);
+    }
+
+
+    @Override
+    public void play() {
+        // Initialize hardware
+        robot.initServos();
+        robot.initAllMotors();
+        robot.initSensors();
+
+        calibrateGyro();
+
+        waitForStart();
+
+
+        goTowardsCenterVortex();
+
+        // Throw the particles.
+        fireAllParticles();
+
+        goTowardsFirstBeacon();
+
+
+        // Approach beacon.
+        goToBeacon();
+
+        pressBeacon();
 
         robot.tractiuneIntegrala(0, 0);
 
-        //-------------------------------------------------------------------------------------------------------------------------
+        rotate(20);
+
+        robot.tractiuneIntegrala(1, 1);
+        waitForMs(500);
+
+        while (opModeIsActive() && robot.colorSensorLine.alpha() < 20) {
+            double distance = robot.usdSensorRightLeft.getDistance(DistanceUnit.CM);
+            double error = DISTANCE_FROM_WALL - distance;
+            robot.tractiuneIntegrala(LEFT_SPEED + error / 50, RIGHT_SPEED - error / 50);
+
+            if (distance > 50) {
+                setStatus("Error: distance from wall too big.");
+                update();
+
+                requestOpModeStop();
+                return;
+            }
+
+            telemetry.addData("Distance from wall", "%f cm", distance);
+            update();
+        }
+
+        robot.tractiuneIntegrala(-0.3, -0.3);
+        waitForMs(200);
+
+        rotate(80);
+        goToBeacon();
+        pressBeacon();
 
 
         /*multiplier = 2.3;
