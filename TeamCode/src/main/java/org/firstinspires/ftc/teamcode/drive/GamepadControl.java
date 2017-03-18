@@ -39,6 +39,8 @@ public class GamepadControl extends RobotOpMode
     public void start() {
         robot.initAllMotors();
         robot.initServos();
+        robot.initSensors();
+        robot.closeSensors();
     }
 
     @Override
@@ -63,31 +65,32 @@ public class GamepadControl extends RobotOpMode
 
         // varianta1
         if (changeModeGamepad1 == false) {
-            motorPower = gamepad1.right_trigger - gamepad1.left_trigger;
-            directie = gamepad1.left_stick_x;
-
-            //if (motorPower >= 0)
-                robot.tractiuneRobot(motorPower + directie, motorPower - directie, tractiune);
-            //else
-                //robot.tractiuneRobot(motorPower - directie, motorPower + directie, tractiune);
-
-            /*if (sens = true){
-                motorPower = gamepad1.left_trigger - gamepad1.right_trigger;
-                directie = - gamepad1.left_stick_x;
+            if (sens == false) {
+                motorPower = gamepad1.right_trigger - gamepad1.left_trigger;
+                directie = gamepad1.left_stick_x;
 
                 if (motorPower >= 0)
                     robot.tractiuneRobot(motorPower + directie, motorPower - directie, tractiune);
                 else
                     robot.tractiuneRobot(motorPower - directie, motorPower + directie, tractiune);
-            }*/
+            }
+            if (sens == true){
+                motorPower = gamepad1.left_trigger - gamepad1.right_trigger;
+                directie = -gamepad1.left_stick_x;
+
+                if (motorPower > 0)
+                    robot.tractiuneRobot(motorPower + directie, motorPower - directie, tractiune);
+                else
+                    robot.tractiuneRobot(motorPower - directie, motorPower + directie, tractiune);
+            }
         }
 
         //varianta2
         if (changeModeGamepad1 == true) {
-            if (sens = false)
+            if (sens == false)
                 robot.tractiuneRobot(-gamepad1.left_stick_y, -gamepad1.right_stick_y, tractiune);
             else
-                robot.tractiuneRobot(gamepad1.left_stick_x, gamepad1.right_stick_x, tractiune);
+                robot.tractiuneRobot(gamepad1.right_stick_x, gamepad1.left_stick_y, tractiune);
         }
 
 
@@ -149,6 +152,19 @@ public class GamepadControl extends RobotOpMode
 
             //Aruncare mingi
             robot.fireBalls(checkButtonHold(2, GamepadButton.a));
+
+            //Putere aruncare mingi
+            if (checkButtonToggle(2, GamepadButton.dpad_up)) {
+                robot.fire_power += 0.05;
+                robot.fire_power = robot.clamp(robot.fire_power, 0, 1);
+            }
+            if (checkButtonToggle(2, GamepadButton.dpad_down)) {
+                robot.fire_power -= 0.05;
+                robot.fire_power = robot.clamp(robot.fire_power, 0, 1);
+            }
+
+            telemetry.addData("Flywheel power", "%f", robot.fire_power);
+            telemetry.update();
         }
 
         //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -165,7 +181,7 @@ public class GamepadControl extends RobotOpMode
             robot.liftBall(gamepad2.right_trigger - gamepad2.left_trigger);
 
             //Prindere minge
-            if (checkButtonToggle(1, GamepadButton.a)){
+            if (checkButtonToggle(2, GamepadButton.a)){
                 afGamepad2a = !afGamepad2a;
                 robot.grabBall(afGamepad2a);
             }
