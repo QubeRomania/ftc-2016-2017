@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.auto;
+/*package org.firstinspires.ftc.teamcode.auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
@@ -20,32 +20,31 @@ public final class FirstAutonomy extends LinearRobotOpMode {
 
     public String culoare = null;
 
-
-    @Override
-    public void play() {
-
+    private void initialize() {
         robot.initServos();
         robot.initAllMotors();
         robot.initSensors();
+    }
 
+    private void calibrateGyro() {
         robot.gyro.calibrate();
 
         while (robot.gyro.isCalibrating()){
-            setStatus("Calibrating");
+            setStatus("Calibrating...");
             update();
             idle();
         }
-        telemetry.addData("Done", "!");
-        telemetry.update();
 
-        waitForStart();
+        setStatus("Done calibrating gyro!");
+        update();
+    }
 
+    private void goTowardsCenterVortex() {
         runtime.reset();
 
         time = runtime.time();
 
-
-        while(runtime.time() - time <= 1.3){
+        while(runtime.time() - time <= 1.3) {
             angle = robot.gyro.getIntegratedZValue();
             error = direction - angle;
             robot.tractiuneIntegrala(LEFT_BASE_SPEED - (error / 50), RIGHT_BASE_SPEED + (error / 50));
@@ -55,12 +54,9 @@ public final class FirstAutonomy extends LinearRobotOpMode {
         }
 
         robot.tractiuneIntegrala(0, 0);
+    }
 
-        //telemetry.addData("dorm", "!");
-        //telemetry.update();
-
-        //sleep (10000);
-
+    private void fireAllParticles() {
         robot.prepareFire(true);
         robot.fireBalls(true);
         sleep(700);
@@ -73,10 +69,27 @@ public final class FirstAutonomy extends LinearRobotOpMode {
         robot.grabBalls(false);
         robot.prepareFire(false);
         robot.fireBalls(false);
+    }
+
+    @Override
+    public void play() {
+        // Init all subsystems.
+        initialize();
+
+        // Calibrate the gyro.
+        calibrateGyro();
+
+        waitForStart();
+
+        // Reach the firing position.
+        goTowardsCenterVortex();
+
+        fireAllParticles();
 
         direction = 60;
         error = 0;
         time = runtime.time();
+
         while(runtime.time() - time <= 4 && robot.lightSensorLeft.getLightDetected() < 0.2){
             telemetry.addData("lumina", robot.lightSensorLeft.getLightDetected());
             angle = robot.gyro.getIntegratedZValue();
@@ -228,4 +241,4 @@ public final class FirstAutonomy extends LinearRobotOpMode {
         sleep(1000);
 
     }
-}
+}*/
