@@ -65,11 +65,13 @@ public final class Hardware {
     public void initBackMotors() {
         leftBackMotor = initMotorWithoutEncoder("leftBackMotor");
         rightBackMotor = initMotorWithoutEncoder("rightBackMotor");
+        rightBackMotor.setDirection(DcMotor.Direction.REVERSE);
     }
 
     public void initFrontMotors() {
         leftFrontMotor = initMotorWithoutEncoder("leftFrontMotor");
         rightFrontMotor = initMotorWithoutEncoder("rightFrontMotor");
+        rightFrontMotor.setDirection(DcMotor.Direction.REVERSE);
     }
 
     public void initDriveMotors() {
@@ -220,7 +222,7 @@ public final class Hardware {
         right = clamp(right, -1, 1);
 
         leftBackMotor.setPower(left * MOTOR_LIMIT);
-        rightBackMotor.setPower(-right * MOTOR_LIMIT);
+        rightBackMotor.setPower(right * MOTOR_LIMIT);
     }
 
     public void tractiuneFata (double left, double right){
@@ -228,7 +230,7 @@ public final class Hardware {
         right = clamp(right, -1, 1);
 
         leftFrontMotor.setPower(left * MOTOR_LIMIT);
-        rightFrontMotor.setPower(-right * MOTOR_LIMIT);
+        rightFrontMotor.setPower(right * MOTOR_LIMIT);
     }
 
     public void tractiuneIntegrala (double i, double j){
@@ -291,11 +293,8 @@ public final class Hardware {
     }
 
 
-    public void grabBall (boolean af1){
-        if (af1 == true)
-            servoGrabBall.setPosition(0.2);
-        else
-            servoGrabBall.setPosition(0);
+    public void grabBall (double position){
+        servoGrabBall.setPosition(position);
     }
 
 
