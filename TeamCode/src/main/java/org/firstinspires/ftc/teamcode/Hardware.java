@@ -1,15 +1,14 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.LightSensor;
+import org.firstinspires.ftc.teamcode.sensor.RangeSensor;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
-
+import com.qualcomm.robotcore.hardware.I2cAddr;
 import org.firstinspires.ftc.teamcode.servo.LauncherServo;
 
 public final class Hardware {
@@ -31,13 +30,14 @@ public final class Hardware {
 
     //sensors
     public ModernRoboticsI2cGyro gyro = null;
-    public ModernRoboticsI2cRangeSensor usdSensorFrontRight = null;
-    public ModernRoboticsI2cRangeSensor usdSensorFrontLeft = null;
-    public ModernRoboticsI2cRangeSensor usdSensorRightLeft = null;
+    public RangeSensor usdSensorFrontRight = null;
+    public RangeSensor usdSensorFrontLeft = null;
+    public RangeSensor usdSensorRightLeft = null;
     public ColorSensor colorSensorLine = null;
     public ColorSensor colorSensorBeacon = null;
     public OpticalDistanceSensor lightSensorLeft = null;
     public OpticalDistanceSensor lightSensorRight = null;
+
 
     //other things
     private HardwareMap hwMap = null;
@@ -137,12 +137,13 @@ public final class Hardware {
 
     public void initGyro() {
         gyro = (ModernRoboticsI2cGyro)hwMap.gyroSensor.get("gyro");
+        gyro.setHeadingMode(ModernRoboticsI2cGyro.HeadingMode.HEADING_CARTESIAN);
     }
 
     public void initRangeSensors(){
-        usdSensorFrontRight = hwMap.get(ModernRoboticsI2cRangeSensor.class, "usdSensorFrontRight");
-        usdSensorFrontLeft = hwMap.get(ModernRoboticsI2cRangeSensor.class, "usdSensorFrontLeft");
-        usdSensorRightLeft = hwMap.get(ModernRoboticsI2cRangeSensor.class, "usdSensorRightLeft");
+        usdSensorFrontRight = new RangeSensor(hwMap, "usdSensorFrontRight", 0x15);
+        usdSensorFrontLeft = new RangeSensor(hwMap, "usdSensorFrontLeft", 0x1d);
+        usdSensorRightLeft = new RangeSensor(hwMap, "usdSensorRightLeft", 0x25);
     }
 
     public void initLightSensors(){
@@ -152,10 +153,10 @@ public final class Hardware {
 
     public void initColorSensors(){
         colorSensorLine = hwMap.colorSensor.get("colorSensorLine");
+        colorSensorLine.setI2cAddress(I2cAddr.create7bit(0x26));
         colorSensorBeacon = hwMap.colorSensor.get("colorSensorBeacon");
-
+        colorSensorBeacon.setI2cAddress(I2cAddr.create7bit(0x1e));
         colorSensorBeacon.enableLed(false);
-        colorSensorLine.enableLed(true);
     }
 
     public void initSensors() {
@@ -165,7 +166,7 @@ public final class Hardware {
         initColorSensors();
     }
 
-    public void stopSensors() {
+    public void closeSensors() {
         gyro.close();
 
         usdSensorFrontLeft.close();
@@ -179,22 +180,24 @@ public final class Hardware {
         colorSensorBeacon.close();
     }
 
-    public void stopServo() {
+    public void closeServos() {
         servoBeacon.close();
         servoFire.close();
         servoGrabBall.close();
     }
 
     public void stopAllDevices() {
-        stopSensors();
-        stopServo();
+        closeSensors();
+        closeServos();
     }
 
     //CONSTANTE
     public static final double MOTOR_LIMIT = 0.78;
     //public static final double MUIE_ROBOTI = 1;
-    public static final double FIRE_POWER = 0.25;
     public static final double GRAB_POWER = 0.78;
+
+    /// The power of the flywheels.
+    public double fire_power = 0.25;
 
     public static double clamp(double value, double min, double max) {
         return Math.max(min, Math.min(max, value));
@@ -265,8 +268,8 @@ public final class Hardware {
 
     public void fireBalls (boolean af){
         if (af == true){
-            fireLeftMotor.setPower(FIRE_POWER);
-            fireRightMotor.setPower(-FIRE_POWER);
+            fireLeftMotor.setPower( fire_power);
+            fireRightMotor.setPower(- fire_power);
         }
         else{
             fireLeftMotor.setPower(0);
@@ -290,9 +293,9 @@ public final class Hardware {
 
     public void grabBall (boolean af1){
         if (af1 == true)
-            servoGrabBall.setPosition(0.6);
+            servoGrabBall.setPosition(0.2);
         else
-            servoGrabBall.setPosition(1);
+            servoGrabBall.setPosition(0);
     }
 
 
