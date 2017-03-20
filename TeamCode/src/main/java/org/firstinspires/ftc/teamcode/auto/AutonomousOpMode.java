@@ -11,6 +11,8 @@ public abstract class AutonomousOpMode extends LinearRobotOpMode {
 
         robot.gyro.calibrate();
 
+        idle();
+
         while (robot.gyro.isCalibrating() && !opModeIsActive()) {
             setStatus("Calibrating...");
             update();
@@ -67,7 +69,7 @@ public abstract class AutonomousOpMode extends LinearRobotOpMode {
 
     //viteza
     // TODO: set this to a bigger speed
-    static final double BASE_SPEED = 1.0;
+    static final double BASE_SPEED = 2;
     static final double LEFT_PROP = 0.34375;
     static final double RIGHT_PROP = 0.46875;
 
@@ -84,8 +86,6 @@ public abstract class AutonomousOpMode extends LinearRobotOpMode {
 
     protected void goTowardsCenterVortex() {
         runtime.reset();
-        time = runtime.time();
-
         double direction = 0;
         double angle = robot.gyro.getIntegratedZValue();
         double error = direction - angle;
@@ -93,15 +93,17 @@ public abstract class AutonomousOpMode extends LinearRobotOpMode {
 
         addDistanceData();
 
-
         do {
             leftFrontDistance = robot.usdSensorFrontLeft.getDistance(DistanceUnit.CM);
             rightFrontDistance = robot.usdSensorFrontRight.getDistance(DistanceUnit.CM);
 
-
             double motorCorrection = ((error * P + (error + lastError) * I + (error - lastError) * D) * scale) / 100;
 
-            robot.tractiuneIntegrala((BASE_SPEED * LEFT_PROP) - motorCorrection, (BASE_SPEED * RIGHT_PROP) + motorCorrection);
+            if (runtime.milliseconds() < 300)
+                robot.tractiuneIntegrala((BASE_SPEED * LEFT_PROP) - motorCorrection, (BASE_SPEED * RIGHT_PROP) + motorCorrection);
+            else
+                robot.tractiuneIntegrala((BASE_SPEED * LEFT_PROP / 2) - motorCorrection, (BASE_SPEED * RIGHT_PROP / 2) + motorCorrection);
+
             addDistanceData();
 
             lastError = error;
@@ -112,7 +114,7 @@ public abstract class AutonomousOpMode extends LinearRobotOpMode {
 
         robot.tractiuneIntegrala(0, 0);
 
-        waitForMs(600);
+        waitForMs(200);
     }
 
     protected void pressBeacon(BeaconColor wantedColor) {
@@ -147,9 +149,9 @@ public abstract class AutonomousOpMode extends LinearRobotOpMode {
         }
 
         if (color == wantedColor) {
-            robot.servoBeacon.setPosition(0);
-        } else {
             robot.servoBeacon.setPosition(1);
+        } else {
+            robot.servoBeacon.setPosition(0);
         }
 
         waitForMs(500);
@@ -161,7 +163,7 @@ public abstract class AutonomousOpMode extends LinearRobotOpMode {
 
         waitForMs(500);
 
-        robot.tractiuneIntegrala(-0.6, -0.6);
+        robot.tractiuneIntegrala(-1, -1);
 
         waitForMs(300);
 
