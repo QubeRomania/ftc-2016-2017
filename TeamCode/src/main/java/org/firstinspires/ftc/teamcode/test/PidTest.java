@@ -2,18 +2,15 @@ package org.firstinspires.ftc.teamcode.test;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.LinearRobotOpMode;
+import org.firstinspires.ftc.teamcode.auto.AutonomousOpMode;
 
 @TeleOp(name = "PidTest", group = "Tests")
-//@Disabled
-
-
-public class PidTest extends LinearRobotOpMode {
+public class PidTest extends AutonomousOpMode {
 
     //PID procentual
-    static final double P = 30;
-    static final double I = 10;
-    static final double D = 60;
+    static final double P = 35;
+    static final double I = 5;
+    static final double D = 70;
 
     static final double scale = 0.05;
 
@@ -22,33 +19,9 @@ public class PidTest extends LinearRobotOpMode {
     public double motorCorrection = 0;
     public double multiplier = 0;
 
-    static final double BASE_SPEED = 0.6;
+    static final double BASE_SPEED = 0.8;
     static final double LEFT_RATIO = 0.95;
     static final double RIGHT_RATIO = 1;
-
-    private void calibrateGyro() {
-        setStatus("Started calibrating gyro.");
-        update();
-
-        robot.gyro.calibrate();
-
-        while (robot.gyro.isCalibrating() && opModeIsActive()) {
-            setStatus("Calibrating...");
-            update();
-
-            idle();
-        }
-
-        if (isStarted()) {
-            setStatus("Error: gyro NOT CALIBRATED!");
-
-            requestOpModeStop();
-            return;
-        }
-
-        setStatus("Done calibrating gyro.");
-        update();
-    }
 
     public void play(){
         robot.initGyro();
