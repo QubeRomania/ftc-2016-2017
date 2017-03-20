@@ -56,7 +56,7 @@ public abstract class LinearRobotOpMode extends LinearOpMode {
             telemetry.addData("Angle", "%f", angle);
             telemetry.addData("Error", "%f", error);
             update();
-            if(error <= 10 && error >= -10 && arrived == false){
+            if(error <= 5 && error >= -5 && arrived == false){
                 arrived = true;
                 timer = runtime.time();
             }
