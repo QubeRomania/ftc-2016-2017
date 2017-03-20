@@ -85,9 +85,28 @@ public final class Hardware {
         liftingMotor = initMotorWithoutEncoder("liftingMotor");
     }
 
+    private static final int REVS_PER_ROTATION = 1220;
+
+    private static final int LAUNCH_SPEED = (int)(REVS_PER_ROTATION * 0.80);
+
     public void initFireMotors() {
         fireLeftMotor = initMotorWithoutEncoder("fireLeftMotor");
         fireRightMotor = initMotorWithoutEncoder("fireRightMotor");
+
+        fireRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        fireLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        fireRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        Thread.yield();
+
+        // Run with encoders.
+        fireLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        fireRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        // Set them to run at constant speed.
+        fireLeftMotor.setMaxSpeed(LAUNCH_SPEED);
+        fireRightMotor.setMaxSpeed(LAUNCH_SPEED);
     }
 
     public void initAllMotors() {
@@ -196,10 +215,8 @@ public final class Hardware {
     //CONSTANTE
     public static final double MOTOR_LIMIT = 0.78;
     //public static final double MUIE_ROBOTI = 1;
-    public static final double GRAB_POWER = 0.78;
+    public static final double GRAB_POWER = 0.85;
 
-    /// The power of the flywheels.
-    public double fire_power = 0.25;
 
     public static double clamp(double value, double min, double max) {
         return Math.max(min, Math.min(max, value));
@@ -239,7 +256,7 @@ public final class Hardware {
     }
 
     public void grabBallsv2 (double power){
-        grabMotor.setPower(power * MOTOR_LIMIT);
+        grabMotor.setPower(power * GRAB_POWER);
     }
 
     public void grabBalls (boolean af){
@@ -260,22 +277,15 @@ public final class Hardware {
         }
     }
 
-    public void prepareFire (boolean af){
-        if (af == true)
-            servoFire.setFiring(true);
-        else
-            servoFire.setFiring(false);
-
+    public void prepareFire (boolean af) {
+        servoFire.setFiring(af);
     }
 
-    public void fireBalls (boolean af){
-        if (af == true){
-            fireLeftMotor.setPower( fire_power);
-            fireRightMotor.setPower(- fire_power);
-        }
-        else{
-            fireLeftMotor.setPower(0);
-            fireRightMotor.setPower(0);}
+    public void fireBalls (boolean af) {
+        double firePower = af ? MOTOR_LIMIT : 0;
+
+        fireLeftMotor.setPower(firePower);
+        fireRightMotor.setPower(firePower);
     }
 
     public void changeSide (boolean dir){
@@ -301,4 +311,6 @@ public final class Hardware {
     public void init(HardwareMap map) {
         hwMap = map;
     }
+
+
 }
