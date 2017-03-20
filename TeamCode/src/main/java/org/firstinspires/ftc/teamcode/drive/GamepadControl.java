@@ -54,15 +54,19 @@ public class GamepadControl extends RobotOpMode
 
         //schimb mod de condus
         if (checkButtonToggle(1, GamepadButton.startButton)){
+            afGamepad1start = !afGamepad1start;
             changeModeGamepad1 = !changeModeGamepad1;
             robot.tractiuneRobot(0, 0, Traction.Both);
-            gamepad1.reset();
+            motorPower = 0;
+            directie = 0;
         }
 
         //schimb sens de condus
         if (checkButtonToggle(1, GamepadButton.y)){
             afGamepad1y = !afGamepad1y;
             sens = !sens;
+            motorPower = 0;
+            directie = 0;
         }
 
         //Accesare tractiune
@@ -77,8 +81,7 @@ public class GamepadControl extends RobotOpMode
                     robot.tractiuneRobot(motorPower + directie, motorPower - directie, tractiune);
                 else
                     robot.tractiuneRobot(motorPower - directie, motorPower + directie, tractiune);
-            }
-            if (sens == true){
+            } else {
                 motorPower = gamepad1.left_trigger - gamepad1.right_trigger;
                 directie = -gamepad1.left_stick_x;
 
@@ -155,19 +158,6 @@ public class GamepadControl extends RobotOpMode
 
             //Aruncare mingi
             robot.fireBalls(checkButtonHold(2, GamepadButton.a));
-
-            //Putere aruncare mingi
-            if (checkButtonToggle(2, GamepadButton.dpad_up)) {
-                robot.fire_power += 0.05;
-                robot.fire_power = robot.clamp(robot.fire_power, 0, 1);
-            }
-            if (checkButtonToggle(2, GamepadButton.dpad_down)) {
-                robot.fire_power -= 0.05;
-                robot.fire_power = robot.clamp(robot.fire_power, 0, 1);
-            }
-
-            telemetry.addData("Flywheel power", "%f", robot.fire_power);
-            telemetry.update();
         }
 
         //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -184,6 +174,7 @@ public class GamepadControl extends RobotOpMode
             //Prindere minge
             if (changeModeGamepad2 == true)
                 robot.grabBall(gamepad2.left_stick_y);
+
 
         }
 
