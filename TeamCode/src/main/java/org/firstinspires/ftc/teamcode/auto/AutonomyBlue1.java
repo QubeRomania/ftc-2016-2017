@@ -20,7 +20,7 @@ public final class AutonomyBlue1 extends AutonomousOpMode {
 
     private void goTowardsFirstBeacon2(){
 
-        double direction = -55;
+        double direction = -48;
         double angle = robot.gyro.getIntegratedZValue(), error = direction - angle;
         double lastError = error;
         boolean vazut = false;
@@ -43,9 +43,10 @@ public final class AutonomyBlue1 extends AutonomousOpMode {
 
             telemetry.addData("Gyro angle", "%f deg", angle);
             telemetry.addData("Gyro error", "%f deg", error);
+            telemetry.addData("Light detected", "%.3f", robot.lightSensorRight.getLightDetected());
             update();
         }
-        while (robot.lightSensorLeft.getLightDetected() <= 0.2 && opModeIsActive());
+        while (robot.lightSensorRight.getLightDetected() <= 0.2 && opModeIsActive());
 
         setStatus("Found line.");
         update();
@@ -64,70 +65,6 @@ public final class AutonomyBlue1 extends AutonomousOpMode {
         robot.tractiuneIntegrala(0, 0);
 
         waitForMs(200);
-    }
-    private void goTowardsFirstBeacon() {
-
-        double direction = 50;
-        double angle = robot.gyro.getIntegratedZValue(), error = direction - angle;
-        double lastError = error;
-        rotateTo(direction);
-
-        double lightLeft;
-
-        runtime.reset();
-
-
-        do {
-            lightLeft = robot.lightSensorLeft.getLightDetected();
-
-            lastError = error;
-            angle = robot.gyro.getIntegratedZValue();
-            error = direction - angle;
-
-            //PID
-            motorCorrection = ((error * P + (error + lastError) * I + (error - lastError) * D) * scale) / 100;
-            robot.tractiuneIntegrala((BASE_SPEED * LEFT_PROP) - motorCorrection, (BASE_SPEED * RIGHT_PROP) + motorCorrection);
-
-            telemetry.addData("Gyro angle", "%f deg", angle);
-            telemetry.addData("Gyro error", "%f deg", error);
-
-            telemetry.addData("Left light sensor", "Light detected %.2f", lightLeft);
-            update();
-        }
-        while (lightLeft <= 0.2 && runtime.seconds() < 4 && opModeIsActive());
-
-        if (runtime.seconds() >= 4)
-        {
-            setStatus("Error: line not found.");
-            update();
-
-        }
-        robot.tractiuneIntegrala(0.4, 0.4);
-
-        waitForMs(400);
-
-        robot.tractiuneIntegrala(0, 0);
-        waitForMs(300);
-
-        rotateTo(0);
-
-        // Go back to white line.
-        robot.tractiuneIntegrala(-0.2, -0.2);
-
-        while (robot.colorSensorLine.alpha() < 20 && opModeIsActive()) {
-            setStatus("Going back towards beacon.");
-            update();
-        }
-
-        // Go a bit forward.
-        robot.tractiuneIntegrala(0.3, 0.3);
-
-        waitForMs(300);
-
-        robot.tractiuneIntegrala(0, 0);
-
-        waitForMs(100);
-        rotateTo(90);
     }
 
     @Override
@@ -151,7 +88,7 @@ public final class AutonomyBlue1 extends AutonomousOpMode {
 
 
         // Approach beacon.
-        goToBeacon();
+        goToBeacon(BeaconColor.BLUE);
 
         pressBeacon(BeaconColor.BLUE);
 
@@ -159,9 +96,9 @@ public final class AutonomyBlue1 extends AutonomousOpMode {
 
         rotateTo(0);
 
-        while (robot.colorSensorLine.alpha() > 20 && opModeIsActive()) {
-            robot.tractiuneIntegrala(1, 1);
-
+        runtime.reset();
+        robot.tractiuneIntegrala(1, 1);
+        while (runtime.milliseconds() <= 200 && opModeIsActive()) {
             setStatus("Leaving white line of the first beacon.");
             update();
         }
@@ -196,7 +133,7 @@ public final class AutonomyBlue1 extends AutonomousOpMode {
         update();
 
         rotateTo(-85);
-        goToBeacon();
+        goToBeacon(BeaconColor.BLUE);
         pressBeacon(BeaconColor.BLUE);
         rotateTo(-45);
 
