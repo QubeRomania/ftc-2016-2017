@@ -169,7 +169,7 @@ public abstract class AutonomousOpMode extends LinearRobotOpMode {
         double error = 0;
         double direction, angle = robot.gyro.getIntegratedZValue();
         double lastError;
-        while (robot.usdSensorFrontRight.getDistance(DistanceUnit.CM) >= 19  && opModeIsActive()) {
+        while (robot.usdSensorFrontRight.getDistance(DistanceUnit.CM) >= 21  && opModeIsActive()) {
             direction = 90;
             angle = robot.gyro.getIntegratedZValue();
             lastError = error;
