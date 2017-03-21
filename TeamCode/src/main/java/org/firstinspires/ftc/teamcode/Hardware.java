@@ -169,7 +169,7 @@ public final class Hardware {
 
     public void initLightSensors(){
         lightSensorLeft = hwMap.opticalDistanceSensor.get("lightSensorLeft");
-        lightSensorRight = hwMap.opticalDistanceSensor.get("lightSensorLeft");
+        lightSensorRight = hwMap.opticalDistanceSensor.get("lightSensorRight");
     }
 
     public void initColorSensors(){

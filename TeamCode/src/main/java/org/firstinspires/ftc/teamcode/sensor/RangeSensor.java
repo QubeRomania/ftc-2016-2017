@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.sensor;
 
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cCompassSensor;
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDevice;
@@ -15,8 +17,21 @@ public class RangeSensor
 
     public RangeSensor(HardwareMap hwMap, String name, int address) {
         device = hwMap.i2cDevice.get(name);
+
+
+
         synch = new I2cDeviceSynchImpl(device, I2cAddr.create7bit(address), false);
+
+        synch.resetDeviceConfigurationForOpMode();
+
+        I2cDeviceSynch.ReadWindow window = new I2cDeviceSynch.ReadWindow(ModernRoboticsI2cRangeSensor.Register.FIRST.bVal,
+                ModernRoboticsI2cRangeSensor.Register.LAST.bVal - ModernRoboticsI2cRangeSensor.Register.FIRST.bVal + 1,
+                I2cDeviceSynch.ReadMode.REPEAT);
+
+        synch.setReadWindow(window);
+
         synch.engage();
+
     }
 
     public int rawUltrasonic() {
