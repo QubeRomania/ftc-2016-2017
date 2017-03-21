@@ -203,11 +203,10 @@ public final class AutonomyRed1 extends AutonomousOpMode {
         pressBeacon(BeaconColor.RED);
         rotateTo(45);
 
-        int color;
-        do {
-            color =  robot.colorSensorLine.argb();
-            robot.tractiuneIntegrala(-BASE_SPEED * LEFT_PROP, -BASE_SPEED * RIGHT_PROP);
-        }
-        while (9 <= color && color <= 12 && opModeIsActive());
+        runtime.reset();
+
+        robot.tractiuneIntegrala(-BASE_SPEED * LEFT_PROP, -BASE_SPEED * RIGHT_PROP);
+
+        while (runtime.milliseconds() < 2000 && opModeIsActive());
     }
 }
