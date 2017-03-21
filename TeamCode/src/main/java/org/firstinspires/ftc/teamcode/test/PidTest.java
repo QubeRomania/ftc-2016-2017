@@ -14,6 +14,8 @@ public class PidTest extends AutonomousOpMode {
 
     static final double scale = 0.05;
 
+    boolean arrived = false;
+
     //VARIABILE
     //pid
     public double motorCorrection = 0;
@@ -119,89 +121,191 @@ public class PidTest extends AutonomousOpMode {
                 }
             }
 
-            if (gamepad1.y && opModeIsActive()){
+            if (gamepad1.y && opModeIsActive() && arrived == false){
+                arrived = false;
+
                 direction = 0;
                 angle = robot.gyro.getIntegratedZValue();
                 error  = direction - angle;
                 lastError = error;
 
-                while (gamepad1.y && opModeIsActive()) {
+                while (gamepad1.y && opModeIsActive() && arrived == false) {
                     //PID
-                    motorCorrection = (((P * error) + (I * (error + lastError)) + D * (error - lastError)) * scale) / 100;
+                    if (error  >= -20 && error <= 20){
 
-                    robot.tractiuneIntegrala(- motorCorrection, motorCorrection);
+                        robot.tractiuneIntegrala(motorCorrection, -motorCorrection);
+                        waitForMs(3);
 
-                    lastError = error;
-                    angle = robot.gyro.getIntegratedZValue();
-                    error = direction - angle;
-                    telemetry.addData("Angle", "%f", angle);
-                    telemetry.addData("Error", "%f", error);
-                    update();
+
+                        while (error != 0 && lastError != 0) {
+                            motorCorrection = (((P * error) + (I * (error + lastError)) + D * (error - lastError)) * scale) / 100;
+
+                            robot.tractiuneIntegrala(-motorCorrection / 4, motorCorrection / 4);
+
+                            lastError = error;
+                            angle = robot.gyro.getIntegratedZValue();
+                            error = direction - angle;
+                            telemetry.addData("Angle", "%f", angle);
+                            telemetry.addData("Error", "%f", error);
+                            update();
+                        }
+
+                        arrived = true;
+                    }
+                    if (error > 20 || error < -20) {
+                        motorCorrection = (((P * error) + (I * (error + lastError)) + D * (error - lastError)) * scale) / 100;
+
+                        robot.tractiuneIntegrala(-motorCorrection, motorCorrection);
+
+                        lastError = error;
+                        angle = robot.gyro.getIntegratedZValue();
+                        error = direction - angle;
+                        telemetry.addData("Angle", "%f", angle);
+                        telemetry.addData("Error", "%f", error);
+                        update();
+                    }
                 }
             }
 
-            if (gamepad1.a && opModeIsActive()){
+            if (gamepad1.a && opModeIsActive() && arrived == false){
+                arrived = false;
+
                 direction = -180;
                 angle = robot.gyro.getIntegratedZValue();
                 error  = direction - angle;
                 lastError = error;
 
-                while (gamepad1.a && opModeIsActive()) {
+                while (gamepad1.a && opModeIsActive() && arrived == false) {
                     //PID
-                    motorCorrection = (((P * error) + (I * (error + lastError)) + D * (error - lastError)) * scale) / 100;
+                    if (error  >= -20 && error <= 20){
 
-                    robot.tractiuneIntegrala(- motorCorrection, motorCorrection);
+                        robot.tractiuneIntegrala(motorCorrection, -motorCorrection);
+                        waitForMs(3);
 
-                    lastError = error;
-                    angle = robot.gyro.getIntegratedZValue();
-                    error = direction - angle;
-                    telemetry.addData("Angle", "%f", angle);
-                    telemetry.addData("Error", "%f", error);
-                    update();
+
+                        while (error != 0 && lastError != 0) {
+                            motorCorrection = (((P * error) + (I * (error + lastError)) + D * (error - lastError)) * scale) / 100;
+
+                            robot.tractiuneIntegrala(-motorCorrection / 4, motorCorrection / 4);
+
+                            lastError = error;
+                            angle = robot.gyro.getIntegratedZValue();
+                            error = direction - angle;
+                            telemetry.addData("Angle", "%f", angle);
+                            telemetry.addData("Error", "%f", error);
+                            update();
+                        }
+
+                        arrived = true;
+                    }
+                    if (error > 20 || error < -20) {
+                        motorCorrection = (((P * error) + (I * (error + lastError)) + D * (error - lastError)) * scale) / 100;
+
+                        robot.tractiuneIntegrala(-motorCorrection, motorCorrection);
+
+                        lastError = error;
+                        angle = robot.gyro.getIntegratedZValue();
+                        error = direction - angle;
+                        telemetry.addData("Angle", "%f", angle);
+                        telemetry.addData("Error", "%f", error);
+                        update();
+                    }
                 }
             }
 
-            if (gamepad1.b && opModeIsActive()){
-                direction = -90;
-                angle = robot.gyro.getIntegratedZValue();
-                error  = direction - angle;
-                lastError = error;
+            if (gamepad1.x && opModeIsActive() && arrived == false){
+                arrived = false;
 
-                while (gamepad1.b && opModeIsActive()) {
-                    //PID
-                    motorCorrection = (((P * error) + (I * (error + lastError)) + D * (error - lastError)) * scale) / 100;
-
-                    robot.tractiuneIntegrala(- motorCorrection, motorCorrection);
-
-                    lastError = error;
-                    angle = robot.gyro.getIntegratedZValue();
-                    error = direction - angle;
-                    telemetry.addData("Angle", "%f", angle);
-                    telemetry.addData("Error", "%f", error);
-                    update();
-                }
-            }
-
-            if (gamepad1.x && opModeIsActive()){
                 direction = 90;
                 angle = robot.gyro.getIntegratedZValue();
                 error  = direction - angle;
                 lastError = error;
 
-                while (gamepad1.x && opModeIsActive()) {
+                while (gamepad1.x && opModeIsActive() && arrived == false) {
                     //PID
-                    motorCorrection = (((P * error) + (I * (error + lastError)) + D * (error - lastError)) * scale) / 100;
+                    if (error  >= -20 && error <= 20){
 
-                    robot.tractiuneIntegrala(- motorCorrection, motorCorrection);
+                        robot.tractiuneIntegrala(motorCorrection, -motorCorrection);
+                        waitForMs(3);
 
-                    lastError = error;
-                    angle = robot.gyro.getIntegratedZValue();
-                    error = direction - angle;
-                    telemetry.addData("Angle", "%f", angle);
-                    telemetry.addData("Error", "%f", error);
-                    update();
+
+                        while (error != 0 && lastError != 0) {
+                            motorCorrection = (((P * error) + (I * (error + lastError)) + D * (error - lastError)) * scale) / 100;
+
+                            robot.tractiuneIntegrala(-motorCorrection / 4, motorCorrection / 4);
+
+                            lastError = error;
+                            angle = robot.gyro.getIntegratedZValue();
+                            error = direction - angle;
+                            telemetry.addData("Angle", "%f", angle);
+                            telemetry.addData("Error", "%f", error);
+                            update();
+                        }
+
+                        arrived = true;
+                    }
+                    if (error > 20 || error < -20) {
+                        motorCorrection = (((P * error) + (I * (error + lastError)) + D * (error - lastError)) * scale) / 100;
+
+                        robot.tractiuneIntegrala(-motorCorrection, motorCorrection);
+
+                        lastError = error;
+                        angle = robot.gyro.getIntegratedZValue();
+                        error = direction - angle;
+                        telemetry.addData("Angle", "%f", angle);
+                        telemetry.addData("Error", "%f", error);
+                        update();
+                    }
                 }
             }
+
+            if (gamepad1.b && opModeIsActive() && arrived == false){
+                arrived = false;
+
+                direction = -90;
+                angle = robot.gyro.getIntegratedZValue();
+                error  = direction - angle;
+                lastError = error;
+
+                while (gamepad1.b && opModeIsActive() && arrived == false) {
+                    //PID
+                    if (error  >= -20 && error <= 20){
+
+                        robot.tractiuneIntegrala(motorCorrection, -motorCorrection);
+                        waitForMs(3);
+
+
+                        while (error != 0 && lastError != 0) {
+                            motorCorrection = (((P * error) + (I * (error + lastError)) + D * (error - lastError)) * scale) / 100;
+
+                            robot.tractiuneIntegrala(-motorCorrection / 4, motorCorrection / 4);
+
+                            lastError = error;
+                            angle = robot.gyro.getIntegratedZValue();
+                            error = direction - angle;
+                            telemetry.addData("Angle", "%f", angle);
+                            telemetry.addData("Error", "%f", error);
+                            update();
+                        }
+
+                        arrived = true;
+                    }
+                    if (error > 20 || error < -20) {
+                        motorCorrection = (((P * error) + (I * (error + lastError)) + D * (error - lastError)) * scale) / 100;
+
+                        robot.tractiuneIntegrala(-motorCorrection, motorCorrection);
+
+                        lastError = error;
+                        angle = robot.gyro.getIntegratedZValue();
+                        error = direction - angle;
+                        telemetry.addData("Angle", "%f", angle);
+                        telemetry.addData("Error", "%f", error);
+                        update();
+                    }
+                }
+            }
+
+            robot.tractiuneIntegrala(0, 0);
         }
 
     }
