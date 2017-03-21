@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.auto;
 
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
+
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.LinearRobotOpMode;
 
@@ -165,22 +167,21 @@ public abstract class AutonomousOpMode extends LinearRobotOpMode {
         robot.tractiuneIntegrala(0, 0);
     }
 
-    protected void goToBeacon() {
+    protected void goToBeacon(BeaconColor teamColor) {
         double error = 0;
         double direction, angle = robot.gyro.getIntegratedZValue();
         double lastError;
-        while (robot.usdSensorFrontRight.getDistance(DistanceUnit.CM) >= 21  && opModeIsActive()) {
-            direction = 90;
+        while (robot.usdSensorFrontRight.getDistance(DistanceUnit.CM) >= 19  && opModeIsActive()) {
+            direction = teamColor == BeaconColor.RED ? 90 : -90;
             angle = robot.gyro.getIntegratedZValue();
             lastError = error;
             error = direction - angle;
-            double  motorCorrection = (((P * error) + (I * (error + lastError)) + D * (error - lastError)) * scale) / 400;
+            double  motorCorrection = (((P * error) + (I * (error + lastError)) + D * (error - lastError)) * scale) / 350;
             robot.tractiuneIntegrala(0.2 - motorCorrection, 0.2 + motorCorrection);
             setStatus("Approaching beacon");
             telemetry.addData("Distance ", robot.usdSensorFrontRight.getDistance(DistanceUnit.CM));
             update();
         }
-
 
         robot.tractiuneIntegrala(0, 0);
         waitForMs(200);

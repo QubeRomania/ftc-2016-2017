@@ -154,7 +154,7 @@ public final class AutonomyRed1 extends AutonomousOpMode {
 
 
         // Approach beacon.
-        goToBeacon();
+        goToBeacon(BeaconColor.RED);
 
         pressBeacon(BeaconColor.RED);
 
@@ -162,9 +162,10 @@ public final class AutonomyRed1 extends AutonomousOpMode {
 
         rotateTo(0);
 
-        while (robot.colorSensorLine.alpha() > 20 && opModeIsActive()) {
-            robot.tractiuneIntegrala(1, 1);
+        runtime.reset();
+        robot.tractiuneIntegrala(1, 1);
 
+        while (runtime.milliseconds() <= 200 && opModeIsActive()) {
             setStatus("Leaving white line of the first beacon.");
             update();
         }
@@ -199,7 +200,7 @@ public final class AutonomyRed1 extends AutonomousOpMode {
         update();
 
         rotateTo(85);
-        goToBeacon();
+        goToBeacon(BeaconColor.RED);
         pressBeacon(BeaconColor.RED);
         rotateTo(45);
 
