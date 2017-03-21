@@ -37,13 +37,10 @@ public abstract class AutonomousOpMode extends LinearRobotOpMode {
         update();
 
         robot.fireBalls(true);
-
-        robot.prepareFire(true);
-
         waitForMs(700);
 
         robot.grabBalls(true);
-        waitForMs(250);
+        waitForMs(200);
 
         robot.grabBalls(false);
         waitForMs(900);
@@ -52,9 +49,7 @@ public abstract class AutonomousOpMode extends LinearRobotOpMode {
         waitForMs(250);
 
         robot.grabBalls(false);
-        robot.prepareFire(false);
         robot.fireBalls(false);
-
         setStatus("All balls fired.");
         update();
     }
@@ -163,10 +158,31 @@ public abstract class AutonomousOpMode extends LinearRobotOpMode {
 
         waitForMs(500);
 
-        robot.tractiuneIntegrala(-1, -1);
+        robot.tractiuneIntegrala(-0.6, -0.6);
 
         waitForMs(300);
 
         robot.tractiuneIntegrala(0, 0);
+    }
+
+    protected void goToBeacon() {
+        double error = 0;
+        double direction, angle = robot.gyro.getIntegratedZValue();
+        double lastError;
+        while (robot.usdSensorFrontRight.getDistance(DistanceUnit.CM) >= 19  && opModeIsActive()) {
+            direction = 90;
+            angle = robot.gyro.getIntegratedZValue();
+            lastError = error;
+            error = direction - angle;
+            double  motorCorrection = (((P * error) + (I * (error + lastError)) + D * (error - lastError)) * scale) / 400;
+            robot.tractiuneIntegrala(0.2 - motorCorrection, 0.2 + motorCorrection);
+            setStatus("Approaching beacon");
+            telemetry.addData("Distance ", robot.usdSensorFrontRight.getDistance(DistanceUnit.CM));
+            update();
+        }
+
+
+        robot.tractiuneIntegrala(0, 0);
+        waitForMs(200);
     }
 }
