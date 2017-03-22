@@ -13,7 +13,7 @@ public final class AutonomyBlue1 extends AutonomousOpMode {
 
     private void goTowardsFirstBeacon2(){
 
-        double direction = -48;
+        double direction = -53;
         double angle = robot.gyro.getIntegratedZValue(), error = direction - angle;
         double lastError = error;
         boolean vazut = false;
@@ -39,7 +39,7 @@ public final class AutonomyBlue1 extends AutonomousOpMode {
             telemetry.addData("Light detected", "%.3f", robot.lightSensorRight.getLightDetected());
             update();
         }
-        while (robot.lightSensorRight.getLightDetected() <= 0.2 && opModeIsActive());
+        while (robot.lightSensorRight.getLightDetected() <= 0.12 && opModeIsActive());
 
         setStatus("Found line.");
         update();

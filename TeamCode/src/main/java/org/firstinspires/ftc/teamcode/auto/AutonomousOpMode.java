@@ -166,6 +166,8 @@ public abstract class AutonomousOpMode extends LinearRobotOpMode {
     }
 
     protected void goToBeacon(BeaconColor teamColor, double distanceFromBeacon) {
+        robot.tractiuneIntegrala(0, 0);
+        waitForMs(1000);
         double error = 0;
         double direction, angle;
         double lastError;
