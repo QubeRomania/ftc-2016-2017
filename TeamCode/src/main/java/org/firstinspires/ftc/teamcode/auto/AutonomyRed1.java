@@ -7,19 +7,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 @Autonomous(name = "Autonomy Red 1", group = "Autonomy")
 public final class AutonomyRed1 extends AutonomousOpMode {
 
-    //CONSTANTE
-
-
     //VARIABILE
     //pid
     public double motorCorrection = 0;
-    public double multiplier = 9;
-
-    //sensors
-    public double sideDistance = 0;
-
-    //altele
-    public String parteLinie = null;
 
     private void goTowardsFirstBeacon2(){
 
@@ -42,7 +32,7 @@ public final class AutonomyRed1 extends AutonomousOpMode {
             robot.tractiuneIntegrala(((BASE_SPEED * LEFT_PROP) - motorCorrection) * modifier, ((BASE_SPEED * RIGHT_PROP) + motorCorrection) * modifier );
 
             if (runtime.milliseconds() >= 1400)
-                modifier = 0.4;
+                modifier = 0.2;
 
             telemetry.addData("Gyro angle", "%f deg", angle);
             telemetry.addData("Gyro error", "%f deg", error);
@@ -54,91 +44,26 @@ public final class AutonomyRed1 extends AutonomousOpMode {
         update();
 
         robot.tractiuneIntegrala(-0.2, -0.2);
-        waitForMs(200);
+        waitForMs(400);
 
-        rotateTo(80);
+        robot.tractiuneIntegrala(0, 0);
+        rotateTo(70);
 
         robot.tractiuneIntegrala(0.2, 0.2);
 
         while(robot.colorSensorLine.alpha() < 20 && opModeIsActive()){
-            setStatus("Mergem catre linie");
+            setStatus("Going towards beacon");
+            update();
         }
 
         robot.tractiuneIntegrala(0, 0);
 
         waitForMs(200);
     }
-    private void goTowardsFirstBeacon() {
-
-        double direction = 50;
-        double angle = robot.gyro.getIntegratedZValue(), error = direction - angle;
-        double lastError = error;
-        rotateTo(direction);
-
-        double lightLeft;
-
-        runtime.reset();
-
-
-        do {
-            lightLeft = robot.lightSensorLeft.getLightDetected();
-
-            lastError = error;
-            angle = robot.gyro.getIntegratedZValue();
-            error = direction - angle;
-
-            //PID
-             motorCorrection = ((error * P + (error + lastError) * I + (error - lastError) * D) * scale) / 100;
-            robot.tractiuneIntegrala((BASE_SPEED * LEFT_PROP) - motorCorrection, (BASE_SPEED * RIGHT_PROP) + motorCorrection);
-
-            telemetry.addData("Gyro angle", "%f deg", angle);
-            telemetry.addData("Gyro error", "%f deg", error);
-
-            telemetry.addData("Left light sensor", "Light detected %.2f", lightLeft);
-            update();
-        }
-        while (lightLeft <= 0.2 && runtime.seconds() < 4 && opModeIsActive());
-
-        if (runtime.seconds() >= 4)
-        {
-            setStatus("Error: line not found.");
-            update();
-
-        }
-        robot.tractiuneIntegrala(0.4, 0.4);
-
-        waitForMs(400);
-
-        robot.tractiuneIntegrala(0, 0);
-        waitForMs(300);
-
-        rotateTo(0);
-
-        // Go back to white line.
-        robot.tractiuneIntegrala(-0.2, -0.2);
-
-        while (robot.colorSensorLine.alpha() < 20 && opModeIsActive()) {
-            setStatus("Going back towards beacon.");
-            update();
-        }
-
-        // Go a bit forward.
-        robot.tractiuneIntegrala(0.3, 0.3);
-
-        waitForMs(300);
-
-        robot.tractiuneIntegrala(0, 0);
-
-        waitForMs(100);
-        rotateTo(90);
-    }
 
     @Override
     public void play() {
-        // Initialize hardware
-        robot.initServoBeacon();
-        robot.initAllMotors();
-        robot.initSensors();
+        initialize();
 
         calibrateGyro();
 
@@ -154,53 +79,17 @@ public final class AutonomyRed1 extends AutonomousOpMode {
 
 
         // Approach beacon.
-        goToBeacon(BeaconColor.RED);
+        goToBeacon(BeaconColor.RED, 17);
 
         pressBeacon(BeaconColor.RED);
 
-        robot.tractiuneIntegrala(0, 0);
-
         rotateTo(0);
 
-        runtime.reset();
-        robot.tractiuneIntegrala(1, 1);
-
-        while (runtime.milliseconds() <= 200 && opModeIsActive()) {
-            setStatus("Leaving white line of the first beacon.");
-            update();
-        }
-
-        double direction = 0;
-        double angle = robot.gyro.getIntegratedZValue();
-        double error = direction - angle;
-        double lastError = error;
-        double powerLeft = BASE_SPEED * LEFT_PROP;
-        double powerRight = BASE_SPEED * RIGHT_PROP;
-        boolean scazut = false;
-        runtime.reset();
-        while (opModeIsActive() && robot.colorSensorLine.alpha() < 20) {
-             angle = robot.gyro.getIntegratedZValue();
-             lastError = error;
-             error = direction - angle;
-            //PID
-            motorCorrection = ((error * P + (error + lastError) * I + (error - lastError) * D) * scale) / 50;
-            if(runtime.milliseconds() < 1200) robot.tractiuneIntegrala(powerLeft - motorCorrection, powerRight + motorCorrection);
-            else robot.tractiuneIntegrala((powerLeft - motorCorrection) / 4, (powerRight + motorCorrection) / 4);
-            setStatus("Going to second beacon's line.");
-            update();
-        }
-
-        robot.tractiuneIntegrala(-0.2, -0.2);
-        waitForMs(300);
-
-        robot.tractiuneIntegrala(0, 0);
-        waitForMs(200);
-
-        setStatus("We found the line");
-        update();
+        // Go to second beacon.
+        goToSecondBeacon();
 
         rotateTo(85);
-        goToBeacon(BeaconColor.RED);
+        goToBeacon(BeaconColor.RED, 15);
         pressBeacon(BeaconColor.RED);
         rotateTo(45);
 

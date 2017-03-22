@@ -1,11 +1,19 @@
 package org.firstinspires.ftc.teamcode.auto;
 
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.LinearRobotOpMode;
 
 public abstract class AutonomousOpMode extends LinearRobotOpMode {
+    protected void initialize() {
+        robot.initServos();
+        robot.prepareFire(true);
+        robot.initAllMotors();
+        robot.initSensors();
+    }
+
     /// Calibrates the gyroscope.
     protected void calibrateGyro() {
         setStatus("Started calibrating gyro.");
@@ -48,21 +56,14 @@ public abstract class AutonomousOpMode extends LinearRobotOpMode {
         waitForMs(900);
 
         robot.grabBalls(true);
-        waitForMs(250);
+        waitForMs(400);
 
         robot.grabBalls(false);
         robot.fireBalls(false);
+
         setStatus("All balls fired.");
         update();
     }
-
-    private void addDistanceData() {
-        telemetry.addData("Left front distance", "%f cm", leftFrontDistance);
-        telemetry.addData("Right front distance", "%f cm", rightFrontDistance);
-        telemetry.update();
-    }
-
-    private double leftFrontDistance = 0, rightFrontDistance = 0;
 
     //viteza
     // TODO: set this to a bigger speed
@@ -71,14 +72,14 @@ public abstract class AutonomousOpMode extends LinearRobotOpMode {
     static final double RIGHT_PROP = 0.46875;
 
     /// In centimeters.
-    static final double DISTANCE_FROM_CENTER_VORTEX = 65;
+    static final double ROTATIONS_FROM_CENTER_VORTEX = 1.45;
 
     //PID procentual
-    static final double P = 30;
-    static final double I = 10;
-    static final double D = 60;
+    static final double P = 35;
+    static final double I = 5;
+    static final double D = 70;
 
-    static final double scale = 0.05;
+    static final double scale = 0.042;
 
 
     protected void goTowardsCenterVortex() {
@@ -88,30 +89,29 @@ public abstract class AutonomousOpMode extends LinearRobotOpMode {
         double error = direction - angle;
         double lastError = error;
 
-        addDistanceData();
+        robot.setDriveMotorsRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        idle();
+
+        robot.setDriveMotorTargetRotations(ROTATIONS_FROM_CENTER_VORTEX);
+        robot.setDriveMotorsRunMode(DcMotor.RunMode.RUN_TO_POSITION);
+
 
         do {
-            leftFrontDistance = robot.usdSensorFrontLeft.getDistance(DistanceUnit.CM);
-            rightFrontDistance = robot.usdSensorFrontRight.getDistance(DistanceUnit.CM);
-
             double motorCorrection = ((error * P + (error + lastError) * I + (error - lastError) * D) * scale) / 100;
 
-            if (runtime.milliseconds() < 300)
-                robot.tractiuneIntegrala((BASE_SPEED * LEFT_PROP) - motorCorrection, (BASE_SPEED * RIGHT_PROP) + motorCorrection);
-            else
-                robot.tractiuneIntegrala((BASE_SPEED * LEFT_PROP / 2) - motorCorrection, (BASE_SPEED * RIGHT_PROP / 2) + motorCorrection);
-
-            addDistanceData();
+            robot.tractiuneIntegrala((BASE_SPEED * LEFT_PROP) - motorCorrection, (BASE_SPEED * RIGHT_PROP) + motorCorrection);
 
             lastError = error;
             angle = robot.gyro.getIntegratedZValue();
             error = direction - angle;
         }
-        while (leftFrontDistance >= DISTANCE_FROM_CENTER_VORTEX && rightFrontDistance >= DISTANCE_FROM_CENTER_VORTEX);
+        while (robot.leftFrontMotor.getCurrentPosition() < robot.leftFrontMotor.getTargetPosition() - 50);
 
         robot.tractiuneIntegrala(0, 0);
 
         waitForMs(200);
+        robot.setDriveMotorsRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     protected void pressBeacon(BeaconColor wantedColor) {
@@ -125,8 +125,7 @@ public abstract class AutonomousOpMode extends LinearRobotOpMode {
 
             if (robot.colorSensorBeacon.red() - robot.colorSensorBeacon.blue() >= 2) {
                 color = BeaconColor.RED;
-            }
-            else if (robot.colorSensorBeacon.blue() - robot.colorSensorBeacon.red() >= 2) {
+            } else if (robot.colorSensorBeacon.blue() - robot.colorSensorBeacon.red() >= 2) {
                 color = BeaconColor.BLUE;
             }
 
@@ -137,8 +136,7 @@ public abstract class AutonomousOpMode extends LinearRobotOpMode {
             telemetry.update();
         }
 
-        if (runtime.time() > THINKING_TIME)
-        {
+        if (runtime.time() > THINKING_TIME) {
             telemetry.addData("Status", "Error: thinking time exceeded!");
             telemetry.update();
 
@@ -167,16 +165,16 @@ public abstract class AutonomousOpMode extends LinearRobotOpMode {
         robot.tractiuneIntegrala(0, 0);
     }
 
-    protected void goToBeacon(BeaconColor teamColor) {
+    protected void goToBeacon(BeaconColor teamColor, double distanceFromBeacon) {
         double error = 0;
-        double direction, angle = robot.gyro.getIntegratedZValue();
+        double direction, angle;
         double lastError;
-        while (robot.usdSensorFrontRight.getDistance(DistanceUnit.CM) >= 19  && opModeIsActive()) {
-            direction = teamColor == BeaconColor.RED ? 90 : -90;
+        while (robot.usdSensorFrontRight.getDistance(DistanceUnit.CM) >= distanceFromBeacon && opModeIsActive()) {
+            direction = teamColor == BeaconColor.RED ? 87 : -90;
             angle = robot.gyro.getIntegratedZValue();
             lastError = error;
             error = direction - angle;
-            double  motorCorrection = (((P * error) + (I * (error + lastError)) + D * (error - lastError)) * scale) / 350;
+            double motorCorrection = (((P * error) + (I * (error + lastError)) + D * (error - lastError)) * scale) / 100;
             robot.tractiuneIntegrala(0.2 - motorCorrection, 0.2 + motorCorrection);
             setStatus("Approaching beacon");
             telemetry.addData("Distance ", robot.usdSensorFrontRight.getDistance(DistanceUnit.CM));
@@ -185,5 +183,51 @@ public abstract class AutonomousOpMode extends LinearRobotOpMode {
 
         robot.tractiuneIntegrala(0, 0);
         waitForMs(200);
+    }
+
+    protected void goToSecondBeacon() {
+        runtime.reset();
+        robot.tractiuneIntegrala(1, 1);
+
+        while (runtime.milliseconds() <= 200 && opModeIsActive()) {
+            setStatus("Leaving white line of the first beacon.");
+            update();
+        }
+
+        double direction = 0;
+        double angle = robot.gyro.getIntegratedZValue();
+        double error = direction - angle;
+        double lastError = error;
+        double powerLeft = BASE_SPEED * LEFT_PROP;
+        double powerRight = BASE_SPEED * RIGHT_PROP;
+
+        runtime.reset();
+
+        while (opModeIsActive() && (robot.colorSensorLine.alpha() < 12 || runtime.milliseconds() < 1000)) {
+            angle = robot.gyro.getIntegratedZValue();
+            lastError = error;
+            error = direction - angle;
+
+            //PID
+            double motorCorrection = ((error * P + (error + lastError) * I + (error - lastError) * D) * scale) / 100;
+
+            if (runtime.milliseconds() < 1200)
+                robot.tractiuneIntegrala(powerLeft - motorCorrection, powerRight + motorCorrection);
+            else
+                robot.tractiuneIntegrala((powerLeft - motorCorrection) / 10, (powerRight + motorCorrection) / 10);
+
+            setStatus("Going to second beacon's line.");
+            telemetry.addData("Alpha ", robot.colorSensorLine.alpha());
+            update();
+        }
+
+        robot.tractiuneIntegrala(-0.2, -0.2);
+        waitForMs(300);
+
+        robot.tractiuneIntegrala(0, 0);
+        waitForMs(200);
+
+        setStatus("We found the line");
+        update();
     }
 }
