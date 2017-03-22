@@ -116,17 +116,15 @@ public final class Hardware {
     }
 
     public void setDriveMotorsRunMode(DcMotor.RunMode runMode) {
-        leftBackMotor.setMode(runMode);
-        rightBackMotor.setMode(runMode);
         leftFrontMotor.setMode(runMode);
-        rightFrontMotor.setMode(runMode);
     }
 
-    public void setDriveMotorTargetPosition(int position) {
-        leftBackMotor.setTargetPosition(position);
-        rightBackMotor.setTargetPosition(position);
-        leftFrontMotor.setTargetPosition(position);
-        rightFrontMotor.setTargetPosition(position);
+    public void setDriveMotorTargetRotations(double rotations) {
+        leftFrontMotor.setTargetPosition((int)(REVS_PER_ROTATION * rotations));
+    }
+
+    public void setDriveMotorMaxSpeed(double rotations) {
+        leftFrontMotor.setMaxSpeed((int)(rotations * REVS_PER_ROTATION));
     }
 
     private Servo initServo(String name) {
