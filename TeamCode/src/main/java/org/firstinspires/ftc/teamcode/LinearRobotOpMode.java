@@ -32,12 +32,12 @@ public abstract class LinearRobotOpMode extends LinearOpMode {
         }
     }
 
-    private final double P = 30,
-            I = 10,
-            D = 60,
-            scale = 0.05;
+    private final double P = 35,
+            I = 5,
+            D = 70,
+            scale = 0.042;
 
-    private final double MAX_ERROR = 3.1415;
+    private final double MAX_ERROR = 5;
 
     public void rotateTo(double direction) {
         double angle = robot.gyro.getIntegratedZValue();
@@ -46,7 +46,7 @@ public abstract class LinearRobotOpMode extends LinearOpMode {
         boolean arrived = false;
         double timer = 50;
         runtime.reset();
-        while (opModeIsActive() && ((runtime.time() - timer < 1.5) || arrived == false)){
+        while (opModeIsActive() && ((runtime.time() - timer < 1) || arrived == false)){
             //PID
             double  motorCorrection = (((P * error) + (I * (error + lastError)) + D * (error - lastError)) * scale) / 100;
 
