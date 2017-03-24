@@ -118,6 +118,13 @@ public abstract class AutonomousOpMode extends LinearRobotOpMode {
 
         waitForMs(200);
         robot.setDriveMotorsRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        /*
+        robot.tractiuneIntegrala(0.4, 0);
+        telemetry.addData("Ma pozitionez", "sa arunc la vortex");
+        telemetry.update();
+        waitForMs(100);
+        robot.tractiuneIntegrala(0, 0);*/
     }
 
     protected void pressBeacon(BeaconColor wantedColor) {
@@ -184,6 +191,7 @@ public abstract class AutonomousOpMode extends LinearRobotOpMode {
             error = direction - angle;
             double motorCorrection = (((P * error) + (I * (error + lastError)) + D * (error - lastError)) * scale) / 100;
             robot.tractiuneIntegrala(0.2 - motorCorrection, 0.2 + motorCorrection);
+            
             setStatus("Approaching beacon");
             telemetry.addData("Distance ", robot.usdSensorFrontRight.getDistance(DistanceUnit.CM));
             update();
@@ -221,7 +229,7 @@ public abstract class AutonomousOpMode extends LinearRobotOpMode {
             if (runtime.milliseconds() < 1200)
                 robot.tractiuneIntegrala(powerLeft - motorCorrection, powerRight + motorCorrection);
             else
-                robot.tractiuneIntegrala((powerLeft - motorCorrection) / 10, (powerRight + motorCorrection) / 10);
+                robot.tractiuneIntegrala((powerLeft - motorCorrection) / 6, (powerRight + motorCorrection) / 6);
 
             setStatus("Going to second beacon's line.");
             telemetry.addData("Angle", angle);
