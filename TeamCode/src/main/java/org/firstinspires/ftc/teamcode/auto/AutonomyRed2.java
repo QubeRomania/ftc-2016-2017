@@ -15,6 +15,8 @@ public class AutonomyRed2 extends AutonomousOpMode {
         waitForMs(2000);
 
         goTowardsCenterVortex();
+        robot.tractiuneIntegrala(0.3, 0.3);
+        waitForMs(200);
 
         rotateTo(40);
 

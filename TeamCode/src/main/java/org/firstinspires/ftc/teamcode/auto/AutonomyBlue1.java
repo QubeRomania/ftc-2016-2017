@@ -7,7 +7,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 @Autonomous(name = "Autonomy Blue 1", group = "Autonomy")
 public final class AutonomyBlue1 extends AutonomousOpMode {
 
-    //VARIABILE
+    //Class variables
     //pid
     public double motorCorrection = 0;
 
@@ -84,7 +84,7 @@ public final class AutonomyBlue1 extends AutonomousOpMode {
 
         rotateTo(0);
 
-        goToSecondBeacon();
+        goToSecondBeacon(-2);
 
         rotateTo(-85);
         goToBeacon(BeaconColor.BLUE, 15);

@@ -178,7 +178,7 @@ public abstract class AutonomousOpMode extends LinearRobotOpMode {
         double direction, angle;
         double lastError;
         while (robot.usdSensorFrontRight.getDistance(DistanceUnit.CM) >= distanceFromBeacon && opModeIsActive()) {
-            direction = teamColor == BeaconColor.RED ? 87 : -90;
+            direction = teamColor == BeaconColor.RED ? 87 : -87;
             angle = robot.gyro.getIntegratedZValue();
             lastError = error;
             error = direction - angle;
@@ -193,7 +193,7 @@ public abstract class AutonomousOpMode extends LinearRobotOpMode {
         waitForMs(200);
     }
 
-    protected void goToSecondBeacon() {
+    protected void goToSecondBeacon(double direction) {
         runtime.reset();
         robot.tractiuneIntegrala(1, 1);
 
@@ -202,7 +202,6 @@ public abstract class AutonomousOpMode extends LinearRobotOpMode {
             update();
         }
 
-        double direction = 0;
         double angle = robot.gyro.getIntegratedZValue();
         double error = direction - angle;
         double lastError = error;
@@ -225,7 +224,9 @@ public abstract class AutonomousOpMode extends LinearRobotOpMode {
                 robot.tractiuneIntegrala((powerLeft - motorCorrection) / 10, (powerRight + motorCorrection) / 10);
 
             setStatus("Going to second beacon's line.");
-            telemetry.addData("Alpha ", robot.colorSensorLine.alpha());
+            telemetry.addData("Angle", angle);
+            telemetry.addData("Error", "%.2f", error);
+            telemetry.addData("Alpha", robot.colorSensorLine.alpha());
             update();
         }
 

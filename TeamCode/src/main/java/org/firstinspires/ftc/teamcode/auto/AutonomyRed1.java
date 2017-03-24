@@ -86,7 +86,7 @@ public final class AutonomyRed1 extends AutonomousOpMode {
         rotateTo(0);
 
         // Go to second beacon.
-        goToSecondBeacon();
+        goToSecondBeacon(0);
 
         rotateTo(85);
         goToBeacon(BeaconColor.RED, 15);
