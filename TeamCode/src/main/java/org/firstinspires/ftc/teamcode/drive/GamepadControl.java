@@ -73,30 +73,56 @@ public class GamepadControl extends RobotOpMode
 
         // varianta1
         if (changeModeGamepad1 == false) {
-            if (sens == false) {
-                motorPower = gamepad1.right_trigger - gamepad1.left_trigger;
+            if (!gamepad1.right_bumper) {
+                if (sens == false) {
+                    motorPower = gamepad1.right_trigger - gamepad1.left_trigger;
+                    directie = gamepad1.left_stick_x;
+
+                    if (motorPower >= 0)
+                        robot.tractiuneRobot(motorPower + directie, motorPower - directie, tractiune);
+                    else
+                        robot.tractiuneRobot(motorPower - directie, motorPower + directie, tractiune);
+                } else {
+                    motorPower = gamepad1.left_trigger - gamepad1.right_trigger;
+                    directie = -gamepad1.left_stick_x;
+
+                    if (motorPower > 0)
+                        robot.tractiuneRobot(motorPower + directie, motorPower - directie, tractiune);
+                    else
+                        robot.tractiuneRobot(motorPower - directie, motorPower + directie, tractiune);
+                }
+            }
+            else{
                 directie = gamepad1.left_stick_x;
 
-                if (motorPower >= 0)
-                    robot.tractiuneRobot(motorPower + directie, motorPower - directie, tractiune);
-                else
-                    robot.tractiuneRobot(motorPower - directie, motorPower + directie, tractiune);
-            } else {
-                motorPower = gamepad1.left_trigger - gamepad1.right_trigger;
-                directie = -gamepad1.left_stick_x;
-
-                if (motorPower > 0)
-                    robot.tractiuneRobot(motorPower + directie, motorPower - directie, tractiune);
-                else
-                    robot.tractiuneRobot(motorPower - directie, motorPower + directie, tractiune);
+                if (directie >= 0) {
+                    robot.leftBackMotor.setPower(1);
+                    robot.leftFrontMotor.setPower(1);
+                    robot.rightBackMotor.setPower(1 - directie);
+                    robot.rightFrontMotor.setPower(1 - directie);
+                }
+                if (directie < 0){
+                    robot.leftBackMotor.setPower(1 + directie);
+                    robot.leftFrontMotor.setPower(1 + directie);
+                    robot.rightBackMotor.setPower(1);
+                    robot.rightFrontMotor.setPower(1);
+                }
             }
         }
         //varianta2
         else {
-            if (sens == false)
-                robot.tractiuneRobot(-gamepad1.left_stick_y, -gamepad1.right_stick_y, tractiune);
-            else
-                robot.tractiuneRobot(gamepad1.right_stick_x, gamepad1.left_stick_y, tractiune);
+            if (!gamepad1.right_bumper) {
+                if (sens == false)
+                    robot.tractiuneRobot(-gamepad1.left_stick_y, -gamepad1.right_stick_y, tractiune);
+                else
+                    robot.tractiuneRobot(gamepad1.right_stick_y, gamepad1.left_stick_y, tractiune);
+            }
+            else{
+                robot.leftBackMotor.setPower(-gamepad1.left_stick_y);
+                robot.leftFrontMotor.setPower(-gamepad1.left_stick_y);
+                robot.rightBackMotor.setPower(-gamepad1.right_stick_y);
+                robot.rightFrontMotor.setPower(-gamepad1.right_stick_y);
+            }
         }
 
 
