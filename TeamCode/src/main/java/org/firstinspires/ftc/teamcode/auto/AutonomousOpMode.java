@@ -226,7 +226,7 @@ public abstract class AutonomousOpMode extends LinearRobotOpMode {
             //PID
             double motorCorrection = ((error * P + (error + lastError) * I + (error - lastError) * D) * scale) / 100;
 
-            if (runtime.milliseconds() < 1200)
+            if (runtime.milliseconds() < 1000)
                 robot.tractiuneIntegrala(powerLeft - motorCorrection, powerRight + motorCorrection);
             else
                 robot.tractiuneIntegrala((powerLeft - motorCorrection) / 6, (powerRight + motorCorrection) / 6);
