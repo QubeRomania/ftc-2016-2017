@@ -172,8 +172,9 @@ public class GamepadControl extends RobotOpMode
             robot.liftBall(gamepad2.right_trigger - gamepad2.left_trigger);
 
             //Prindere minge
-            if (changeModeGamepad2 == true)
-                robot.grabBall(gamepad2.left_stick_y);
+            if (changeModeGamepad2 == true){
+                robot.grabBall(gamepad2.right_stick_y);
+            }
 
 
         }
