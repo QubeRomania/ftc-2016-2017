@@ -51,8 +51,9 @@ public final class AutonomyRed1 extends AutonomousOpMode {
 
         robot.tractiuneIntegrala(0.2, 0.2);
 
-        while(robot.colorSensorLine.alpha() < 20 && opModeIsActive()){
+        while(robot.colorSensorLine.alpha() < 12 && opModeIsActive()){
             setStatus("Going towards beacon");
+            telemetry.addData("Alpha ", robot.colorSensorLine.alpha());
             update();
         }
 

@@ -31,12 +31,13 @@ public final class AutonomyBlue1 extends AutonomousOpMode {
             motorCorrection = ((error * P + (error + lastError) * I + (error - lastError) * D) * scale) / 100;
             robot.tractiuneIntegrala(((BASE_SPEED * LEFT_PROP) - motorCorrection) * modifier, ((BASE_SPEED * RIGHT_PROP) + motorCorrection) * modifier );
 
-            if (runtime.milliseconds() >= 1400)
-                modifier = 0.4;
+            if (runtime.milliseconds() >= 800)
+                modifier = 0.5;
 
             telemetry.addData("Gyro angle", "%f deg", angle);
             telemetry.addData("Gyro error", "%f deg", error);
             telemetry.addData("Light detected", "%.3f", robot.lightSensorRight.getLightDetected());
+            telemetry.addData("Time", "%f ms", runtime.milliseconds());
             update();
         }
         while (robot.lightSensorRight.getLightDetected() <= 0.12 && opModeIsActive());
@@ -45,14 +46,16 @@ public final class AutonomyBlue1 extends AutonomousOpMode {
         update();
 
         robot.tractiuneIntegrala(-0.2, -0.2);
-        waitForMs(200);
+        waitForMs(300);
 
-        rotateTo(-80);
+        rotateTo(-75);
 
         robot.tractiuneIntegrala(0.2, 0.2);
 
-        while(robot.colorSensorLine.alpha() < 20 && opModeIsActive()){
+        while(robot.colorSensorLine.alpha() < 12 && opModeIsActive()){
             setStatus("Mergem catre linie");
+            telemetry.addData("Line alpha", robot.colorSensorLine.alpha());
+            update();
         }
 
         robot.tractiuneIntegrala(0, 0);
