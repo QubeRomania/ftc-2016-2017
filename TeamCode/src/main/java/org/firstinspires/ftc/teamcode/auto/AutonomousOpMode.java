@@ -12,6 +12,7 @@ public abstract class AutonomousOpMode extends LinearRobotOpMode {
         robot.prepareFire(true);
         robot.initAllMotors();
         robot.initSensors();
+
     }
 
     /// Calibrates the gyroscope.
@@ -46,7 +47,6 @@ public abstract class AutonomousOpMode extends LinearRobotOpMode {
         setStatus("Launching particles...");
         update();
 
-        robot.fireBalls(true);
         waitForMs(700);
 
         robot.grabBalls(true);
@@ -88,6 +88,12 @@ public abstract class AutonomousOpMode extends LinearRobotOpMode {
         double angle = robot.gyro.getIntegratedZValue();
         double error = direction - angle;
         double lastError = error;
+
+
+
+        robot.fireBalls(true);
+
+
 
         robot.setDriveMotorsRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 

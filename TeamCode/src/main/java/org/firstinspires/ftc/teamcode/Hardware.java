@@ -79,15 +79,15 @@ public final class Hardware {
         initFrontMotors();
     }
 
+    private static final int REVS_PER_ROTATION = 1220;
+
     public void initBallMotors() {
         grabMotor = initMotorWithoutEncoder("grabMotor");
-        grabMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+
         liftingMotor = initMotorWithoutEncoder("liftingMotor");
     }
 
-    private static final int REVS_PER_ROTATION = 1220;
-
-    private static final int LAUNCH_SPEED = (int)(REVS_PER_ROTATION * 0.80);
+    private static final int LAUNCH_SPEED = (int)(REVS_PER_ROTATION * 0.90);
 
     public void initFireMotors() {
         fireLeftMotor = initMotorWithoutEncoder("fireLeftMotor");
